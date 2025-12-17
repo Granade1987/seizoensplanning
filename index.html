@@ -55,12 +55,14 @@
             </div>
             <div class="input-row" style="display:flex; gap:10px;">
                 <div class="form-group" style="flex:1;">
-                    <label>Start week</label>
+                    <label id="startLabel">Start week</label>
                     <input type="number" id="startWeek" min="1" max="53">
+                    <input type="date" id="startDate" style="display:none;">
                 </div>
                 <div class="form-group" style="flex:1;">
-                    <label>Eind week</label>
+                    <label id="endLabel">Eind week</label>
                     <input type="number" id="endWeek" min="1" max="53">
+                    <input type="date" id="endDate" style="display:none;">
                 </div>
             </div>
             <div class="form-group">

@@ -164,6 +164,21 @@ function listenToFirebase() {
 function openModal(id = null) {
     document.getElementById('itemModal').style.display = 'flex';
     resetModal();
+    if (currentView === 'day') {
+        document.getElementById('startLabel').textContent = 'Start datum';
+        document.getElementById('endLabel').textContent = 'Eind datum';
+        document.getElementById('startWeek').style.display = 'none';
+        document.getElementById('endWeek').style.display = 'none';
+        document.getElementById('startDate').style.display = 'block';
+        document.getElementById('endDate').style.display = 'block';
+    } else {
+        document.getElementById('startLabel').textContent = 'Start week';
+        document.getElementById('endLabel').textContent = 'Eind week';
+        document.getElementById('startWeek').style.display = 'block';
+        document.getElementById('endWeek').style.display = 'block';
+        document.getElementById('startDate').style.display = 'none';
+        document.getElementById('endDate').style.display = 'none';
+    }
     if (id) {
         const item = campaigns.find(c => c.id == id);
         document.getElementById('currentId').value = item.id;
@@ -171,8 +186,17 @@ function openModal(id = null) {
         document.getElementById('department').value = item.department;
         document.getElementById('taskDesc').value = item.description || '';
         document.getElementById('attachmentUrl').value = item.attachmentUrl || '';
-        document.getElementById('startWeek').value = item.startWeek;
-        document.getElementById('endWeek').value = item.endWeek;
+        if (currentView === 'day') {
+            // Bereken datum van week
+            // Voor start: eerste dag van week
+            const startDate = getDateFromWeek(item.startWeek, 2026);
+            const endDate = getDateFromWeek(item.endWeek, 2026);
+            document.getElementById('startDate').value = startDate.toISOString().split('T')[0];
+            document.getElementById('endDate').value = endDate.toISOString().split('T')[0];
+        } else {
+            document.getElementById('startWeek').value = item.startWeek;
+            document.getElementById('endWeek').value = item.endWeek;
+        }
         document.getElementById('deleteBtn').style.display = 'block';
         refreshCommentsOnly(id);
     }
@@ -180,16 +204,26 @@ function openModal(id = null) {
 
 function saveTask() {
     const id = document.getElementById('currentId').value || Date.now().toString();
+    let startWeek, endWeek;
+    if (currentView === 'day') {
+        const startDate = new Date(document.getElementById('startDate').value);
+        const endDate = new Date(document.getElementById('endDate').value);
+        startWeek = getWeekNumber(startDate);
+        endWeek = getWeekNumber(endDate);
+    } else {
+        startWeek = parseInt(document.getElementById('startWeek').value);
+        endWeek = parseInt(document.getElementById('endWeek').value);
+    }
     const data = {
         id, title: document.getElementById('taskName').value,
         department: document.getElementById('department').value,
         description: document.getElementById('taskDesc').value,
         attachmentUrl: document.getElementById('attachmentUrl').value,
-        startWeek: parseInt(document.getElementById('startWeek').value),
-        endWeek: parseInt(document.getElementById('endWeek').value),
+        startWeek: startWeek,
+        endWeek: endWeek,
         color: departments[document.getElementById('department').value]
     };
-    if(!data.title || !data.startWeek) return alert("Vul titel en startweek in.");
+    if(!data.title || !data.startWeek) return alert("Vul titel en start in.");
     database.ref('campaigns_2026/' + id).update(data).then(() => closeModal());
 }
 
@@ -238,6 +272,8 @@ function resetModal() {
     document.getElementById('attachmentUrl').value = '';
     document.getElementById('startWeek').value = '';
     document.getElementById('endWeek').value = '';
+    document.getElementById('startDate').value = '';
+    document.getElementById('endDate').value = '';
     document.getElementById('deleteBtn').style.display = 'none';
     document.getElementById('commentsList').innerHTML = '';
 }
@@ -257,10 +293,12 @@ function toggleFilter(d) {
     createLegend(); renderCampaigns();
 }
 
-function getISOWeek(date) {
-    const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
-    d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
-    return Math.ceil((((d - new Date(Date.UTC(d.getUTCFullYear(), 0, 1))) / 86400000) + 1) / 7);
+function getDateFromWeek(week, year) {
+    const d = new Date(year, 0, 1);
+    const day = d.getDay();
+    const diff = d.getDate() - day + (day === 0 ? -6 : 1); // naar maandag
+    d.setDate(diff + (week - 1) * 7);
+    return d;
 }
 
 window.onclick = (e) => { if(e.target.className === 'modal') closeModal(); };
