@@ -128,15 +128,17 @@ function renderCampaigns() {
     
     filtered.forEach(item => {
         let start, end;
+        const startDate = new Date(item.startDate);
+        const endDate = new Date(item.endDate);
         if (currentView === 'month') {
-            start = Math.max(1, Math.min(12, Math.ceil(item.startWeek / 4.42)));
-            end = Math.max(1, Math.min(12, Math.ceil(item.endWeek / 4.42)));
+            start = startDate.getMonth() + 1;
+            end = endDate.getMonth() + 1;
         } else if (currentView === 'day') {
-            start = (item.startWeek * 7) - 6;
-            end = item.endWeek * 7;
+            start = Math.floor((startDate - new Date(2026, 0, 1)) / (1000 * 60 * 60 * 24)) + 1;
+            end = Math.floor((endDate - new Date(2026, 0, 1)) / (1000 * 60 * 60 * 24)) + 1;
         } else {
-            start = item.startWeek;
-            end = item.endWeek;
+            start = getWeekNumber(startDate);
+            end = getWeekNumber(endDate);
         }
 
         let rowIndex = rows.findIndex(row => row.every(p => end < p.start || start > p.end));
@@ -171,11 +173,8 @@ function openModal(id = null) {
         document.getElementById('department').value = item.department;
         document.getElementById('taskDesc').value = item.description || '';
         document.getElementById('attachmentUrl').value = item.attachmentUrl || '';
-        // Bereken datum van week
-        const startDate = getDateFromWeek(item.startWeek, 2026);
-        const endDate = getDateFromWeek(item.endWeek, 2026);
-        document.getElementById('startDate').value = startDate.toISOString().split('T')[0];
-        document.getElementById('endDate').value = endDate.toISOString().split('T')[0];
+        document.getElementById('startDate').value = item.startDate || '';
+        document.getElementById('endDate').value = item.endDate || '';
         document.getElementById('deleteBtn').style.display = 'block';
         refreshCommentsOnly(id);
     }
@@ -183,20 +182,19 @@ function openModal(id = null) {
 
 function saveTask() {
     const id = document.getElementById('currentId').value || Date.now().toString();
-    const startDate = new Date(document.getElementById('startDate').value);
-    const endDate = new Date(document.getElementById('endDate').value);
-    const startWeek = getWeekNumber(startDate);
-    const endWeek = getWeekNumber(endDate);
+    const startDate = document.getElementById('startDate').value;
+    const endDate = document.getElementById('endDate').value;
+    if (!startDate || !endDate) return alert("Vul start en eind datum in.");
     const data = {
         id, title: document.getElementById('taskName').value,
         department: document.getElementById('department').value,
         description: document.getElementById('taskDesc').value,
         attachmentUrl: document.getElementById('attachmentUrl').value,
-        startWeek: startWeek,
-        endWeek: endWeek,
+        startDate: startDate,
+        endDate: endDate,
         color: departments[document.getElementById('department').value]
     };
-    if(!data.title || !data.startWeek) return alert("Vul titel en start in.");
+    if(!data.title) return alert("Vul titel in.");
     database.ref('campaigns_2026/' + id).update(data).then(() => closeModal());
 }
 
