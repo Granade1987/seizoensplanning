@@ -39,14 +39,11 @@
         <div class="modal-content">
             <span class="close-modal" onclick="closeModal()">&times;</span>
             <h2 id="modalTitle">Item Bewerken</h2>
-            
             <input type="hidden" id="currentId">
-            
             <div class="form-group">
                 <label for="taskName">Titel</label>
                 <input type="text" id="taskName">
             </div>
-
             <div class="form-group">
                 <label for="department">Afdeling</label>
                 <select id="department">
@@ -58,7 +55,6 @@
                     <option value="Winkels">Winkels</option>
                 </select>
             </div>
-
             <div class="input-row">
                 <div class="form-group">
                     <label>Start week</label>
@@ -69,12 +65,10 @@
                     <input type="number" id="endWeek" min="1" max="53">
                 </div>
             </div>
-
             <div class="form-group">
                 <label for="taskDesc">Beschrijving</label>
                 <textarea id="taskDesc" rows="2"></textarea>
             </div>
-
             <div class="form-group">
                 <label for="attachmentUrl">Bijlage (URL)</label>
                 <div class="input-with-action">
@@ -82,9 +76,7 @@
                     <button id="openAttachBtn" type="button" class="btn-icon" onclick="openAttachment()">🔗</button>
                 </div>
             </div>
-
             <hr class="modal-divider">
-
             <div class="form-group">
                 <label>Comments / Updates</label>
                 <div id="commentsList" class="comments-display"></div>
@@ -93,7 +85,6 @@
                     <button type="button" onclick="addComment()" class="btn-comment">Post</button>
                 </div>
             </div>
-
             <div class="modal-buttons">
                 <button id="deleteBtn" onclick="deleteItem()" class="btn-delete-item">Verwijderen</button>
                 <div class="right-buttons">

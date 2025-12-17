@@ -42,7 +42,7 @@ function switchView(view, btn) {
     
     const root = document.documentElement;
     if (view === 'day') {
-        root.style.setProperty('--column-width', '40px');
+        root.style.setProperty('--column-width', '35px');
         root.style.setProperty('--total-cols', '365');
     } else if (view === 'week') {
         root.style.setProperty('--column-width', '60px');
@@ -94,14 +94,16 @@ function buildHeaders() {
             el.innerText = m.name;
             el.style.gridColumn = `span ${m.days}`;
             monthHeader.appendChild(el);
+            
+            // Dagen van de maand toevoegen onder de maandnaam
+            for (let d = 1; d <= m.days; d++) {
+                const dEl = document.createElement('div');
+                dEl.className = 'week-num';
+                dEl.innerText = d;
+                dEl.style.fontSize = '8px';
+                weekHeader.appendChild(dEl);
+            }
         });
-        for (let i = 1; i <= 365; i++) {
-            const el = document.createElement('div');
-            el.className = 'week-num';
-            el.innerText = i;
-            el.style.fontSize = '8px';
-            weekHeader.appendChild(el);
-        }
     }
 }
 
@@ -116,9 +118,11 @@ function renderCampaigns() {
     filtered.forEach(item => {
         let start, end;
         if (currentView === 'month') {
-            start = Math.floor(item.startWeek / 4.4) + 1; // Ruwe schatting voor maand
+            start = Math.floor(item.startWeek / 4.4) + 1;
             end = Math.floor(item.endWeek / 4.4) + 1;
         } else if (currentView === 'day') {
+            // ISO week 1 van 2026 begint op 29 dec 2025, maar we rekenen vanaf 1 jan
+            // Een simpele benadering: week * 7 minus offset
             start = (item.startWeek * 7) - 6;
             end = item.endWeek * 7;
         } else {
@@ -151,9 +155,10 @@ function updateTodayLine() {
     let pos = 0;
     
     if (currentView === 'day') {
-        const start = new Date(2026, 0, 0);
-        const diff = now - start;
-        pos = (Math.floor(diff / 86400000) - 1) * colWidth;
+        const yearStart = new Date(2026, 0, 1);
+        const diff = now - yearStart;
+        const dayOfYear = Math.floor(diff / (1000 * 60 * 60 * 24));
+        pos = dayOfYear * colWidth;
     } else if (currentView === 'week') {
         const w = getISOWeek(now);
         pos = (w - 1) * colWidth + ((now.getDay() || 7) - 1) * (colWidth / 7);
@@ -168,10 +173,9 @@ function scrollToToday() {
     setTimeout(() => {
         const line = document.getElementById('todayLine');
         if(line) wrapper.scrollLeft = line.offsetLeft - 100;
-    }, 50);
+    }, 100);
 }
 
-// Firebase & Modal Logica
 function listenToFirebase() {
     database.ref('campaigns_2026').on('value', (s) => {
         campaigns = s.val() ? Object.values(s.val()) : [];

@@ -4,17 +4,14 @@
     --danger: #ef4444;
     --bg-main: #f9fafb;
     --border-color: #e5e7eb;
-    --column-width: 60px; /* Wordt aangepast via JS */
-    --total-cols: 53;      /* Wordt aangepast via JS */
+    --column-width: 60px;
+    --total-cols: 53;
 }
 
 body { font-family: 'Inter', sans-serif; background: var(--bg-main); margin: 0; padding: 20px; }
-
 .container { max-width: 98vw; margin: 0 auto; }
-
 header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
 
-/* View Switcher */
 .view-switcher { display: flex; background: #e5e7eb; padding: 4px; border-radius: 10px; margin-right: 15px; }
 .btn-view { padding: 8px 16px; border: none; background: transparent; cursor: pointer; font-weight: 600; border-radius: 8px; font-size: 13px; }
 .btn-view.active { background: white; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
@@ -39,12 +36,9 @@ header { display: flex; justify-content: space-between; align-items: center; mar
 .week-num.current-week { background-color: #fbbf24 !important; color: #000; }
 
 .timeline-grid { min-height: 500px; grid-auto-rows: 55px; padding: 10px 0; position: relative; background-image: linear-gradient(to right, var(--border-color) 1px, transparent 1px); background-size: var(--column-width) 100%; }
-
 .today-line { position: absolute; top: 0; bottom: 0; width: 2px; background-color: var(--danger); z-index: 50; pointer-events: none; }
-
 .task-bar { color: white; border-radius: 6px; margin: 4px; padding: 8px; font-size: 11px; font-weight: 700; cursor: pointer; border-left: 4px solid rgba(0,0,0,0.2); display: flex; justify-content: space-between; align-items: center; white-space: nowrap; overflow: hidden; }
 
-/* Modal & Comments */
 .modal { display: none; position: fixed; z-index: 2000; inset: 0; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; }
 .modal-content { background: white; padding: 30px; border-radius: 15px; width: 450px; max-height: 90vh; overflow-y: auto; position: relative; }
 .form-group { margin-bottom: 15px; }
@@ -52,15 +46,12 @@ header { display: flex; justify-content: space-between; align-items: center; mar
 input, textarea, select { width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; }
 .input-with-action { display: flex; gap: 5px; }
 .btn-icon { background: #f3f4f6; border: 1px solid #d1d5db; cursor: pointer; border-radius: 6px; }
-
 .modal-divider { border: 0; border-top: 1px solid #eee; margin: 15px 0; }
 .comments-display { max-height: 100px; overflow-y: auto; background: #f9fafb; padding: 10px; border-radius: 8px; border: 1px solid #eee; margin-bottom: 10px; }
 .comment-item { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 5px; border-bottom: 1px solid #f0f0f0; padding-bottom: 3px; }
 .delete-comment { color: #9ca3af; cursor: pointer; font-size: 16px; }
-
 .comment-input-group { display: flex; gap: 5px; }
 .btn-comment { background: var(--primary); color: white; border: none; border-radius: 6px; padding: 0 10px; cursor: pointer; }
-
 .modal-buttons { display: flex; justify-content: space-between; margin-top: 20px; }
 .btn-save { background: var(--success); color: white; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-weight: 600; }
 .btn-cancel { background: #f3f4f6; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; }
