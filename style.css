@@ -1,51 +1,146 @@
-body { font-family: sans-serif; background: #f4f7f6; padding: 20px; }
+:root {
+    --primary-color: #3498db;
+    --success-color: #27ae60;
+    --bg-color: #f8f9fa;
+    --border-color: #e0e0e0;
+    --text-color: #2c3e50;
+    --week-width: 45px;
+}
 
+body {
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    margin: 0;
+    padding: 20px;
+}
+
+.container {
+    max-width: 95vw;
+    margin: 0 auto;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 15px;
+}
+
+h1 { margin: 0; font-size: 24px; }
+header p { margin: 5px 0 0; color: #7f8c8d; }
+
+.btn-main {
+    padding: 12px 24px;
+    background-color: var(--success-color);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: transform 0.1s, background 0.2s;
+}
+
+.btn-main:hover {
+    background-color: #219150;
+    transform: translateY(-2px);
+}
+
+/* TIJDLIJN GRID */
 .timeline-wrapper {
     overflow-x: auto;
     background: white;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    margin-top: 20px;
+    border-radius: 10px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    border: 1px solid var(--border-color);
 }
 
 .timeline-weeks {
     display: grid;
-    grid-template-columns: repeat(52, 40px); /* Elke week is 40px breed */
-    border-bottom: 2px solid #eee;
-    background: #f9f9f9;
+    grid-template-columns: repeat(52, var(--week-width));
+    background: #f1f3f5;
+    border-bottom: 1px solid var(--border-color);
+    position: sticky;
+    top: 0;
+    z-index: 10;
 }
 
 .week-num {
     text-align: center;
-    font-size: 10px;
-    padding: 5px 0;
-    border-right: 1px solid #eee;
+    font-size: 12px;
+    font-weight: bold;
+    padding: 12px 0;
+    border-right: 1px solid var(--border-color);
 }
 
 .timeline-grid {
     display: grid;
-    grid-template-columns: repeat(52, 40px);
-    grid-auto-rows: 40px;
-    position: relative;
-    padding: 10px 0;
+    grid-template-columns: repeat(52, var(--week-width));
+    grid-auto-rows: 60px; /* Hoogte van de rijen */
+    padding: 15px 0;
+    min-height: 500px;
+    background-image: linear-gradient(to right, #f1f3f5 1px, transparent 1px);
+    background-size: var(--week-width) 100%;
 }
 
-/* De marketing balkjes */
+/* BALKJES (ITEMS) */
 .task-bar {
-    background: #3498db;
+    position: relative;
     color: white;
-    border-radius: 4px;
-    margin: 5px 2px;
-    font-size: 12px;
-    display: flex;
-    align-items: center;
-    padding-left: 10px;
+    border-radius: 6px;
+    margin: 8px 3px;
+    padding: 10px;
+    font-size: 13px;
+    font-weight: bold;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    cursor: pointer;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+    display: flex;
+    align-items: center;
 }
 
-.controls { margin-bottom: 20px; }
-input { padding: 8px; margin-right: 5px; border: 1px solid #ccc; }
-button { padding: 8px 15px; background: #27ae60; color: white; border: none; cursor: pointer; }
+/* MODAL */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.7);
+    align-items: center; justify-content: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background: white;
+    padding: 30px;
+    border-radius: 15px;
+    width: 450px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+}
+
+.form-group { margin-bottom: 15px; }
+.form-group label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 14px; }
+
+input, textarea {
+    padding: 12px;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    font-size: 15px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.input-row { display: flex; gap: 15px; }
+
+.modal-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 20px;
+}
+
+.btn-cancel { background: #e9ecef; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; color: #495057; }
+.btn-save { background: var(--primary-color); color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; }

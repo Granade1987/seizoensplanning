@@ -2,27 +2,57 @@
 <html lang="nl">
 <head>
     <meta charset="UTF-8">
-    <title>Marketing Jaarplanning</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marketing Jaarplanning 2025</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <div class="planning-container">
-        <h1>Marketingplanning 2024</h1>
-        
-        <div class="controls">
-            <input type="text" id="taskName" placeholder="Naam campagne">
-            <input type="number" id="startWeek" placeholder="Start week (1-52)" min="1" max="52">
-            <input type="number" id="duration" placeholder="Aantal weken" min="1">
-            <button onclick="addTask()">Item Toevoegen</button>
-        </div>
+    <div class="container">
+        <header>
+            <div class="header-content">
+                <h1>Marketing Jaarplanning</h1>
+                <p>Overzicht op weekniveau</p>
+            </div>
+            <button class="btn-main" onclick="openModal()">+ Nieuw Item</button>
+        </header>
 
         <div class="timeline-wrapper">
-            <div class="timeline-header" id="monthHeader"></div>
             <div class="timeline-weeks" id="weekHeader"></div>
             
-            <div class="timeline-grid" id="timelineGrid">
+            <div class="timeline-grid" id="timelineGrid"></div>
+        </div>
+    </div>
+
+    <div id="itemModal" class="modal">
+        <div class="modal-content">
+            <h2>Nieuwe Planning</h2>
+            
+            <div class="form-group">
+                <label for="taskName">Titel</label>
+                <input type="text" id="taskName" placeholder="bijv. Voorjaarscampagne">
+            </div>
+
+            <div class="form-group">
+                <label for="taskDesc">Beschrijving</label>
+                <textarea id="taskDesc" rows="3" placeholder="Wat gaan we doen?"></textarea>
+            </div>
+            
+            <div class="input-row">
+                <div class="form-group">
+                    <label for="startWeek">Start week</label>
+                    <input type="number" id="startWeek" min="1" max="52" placeholder="1">
                 </div>
+                <div class="form-group">
+                    <label for="endWeek">Eind week</label>
+                    <input type="number" id="endWeek" min="1" max="52" placeholder="4">
+                </div>
+            </div>
+
+            <div class="modal-buttons">
+                <button onclick="closeModal()" class="btn-cancel">Annuleren</button>
+                <button onclick="addTask()" class="btn-save">Toevoegen aan tijdlijn</button>
+            </div>
         </div>
     </div>
 
