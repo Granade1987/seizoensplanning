@@ -99,20 +99,18 @@ function buildHeaders() {
             el.style.gridColumn = `span ${m.days}`;
             monthHeader.appendChild(el);
 
-            let currentWeek = null;
+            let currentWeek = getWeekNumber(new Date(2026, mIdx, 1));
             let weekStart = 1;
             for (let d = 1; d <= m.days; d++) {
                 const date = new Date(2026, mIdx, d);
                 const week = getWeekNumber(date);
-                if (currentWeek !== week) {
-                    if (currentWeek !== null) {
-                        const span = d - weekStart;
-                        const wEl = document.createElement('div');
-                        wEl.className = 'week-num-label';
-                        wEl.innerText = 'W' + currentWeek;
-                        wEl.style.gridColumn = `span ${span}`;
-                        weekNumHeader.appendChild(wEl);
-                    }
+                if (week !== currentWeek) {
+                    const span = d - weekStart;
+                    const wEl = document.createElement('div');
+                    wEl.className = 'week-num-label';
+                    wEl.innerText = 'W' + currentWeek;
+                    wEl.style.gridColumn = `span ${span}`;
+                    weekNumHeader.appendChild(wEl);
                     currentWeek = week;
                     weekStart = d;
                 }
@@ -123,14 +121,12 @@ function buildHeaders() {
                 weekHeader.appendChild(dEl);
             }
             // Laatste week
-            if (currentWeek !== null) {
-                const span = m.days - weekStart + 1;
-                const wEl = document.createElement('div');
-                wEl.className = 'week-num-label';
-                wEl.innerText = 'W' + currentWeek;
-                wEl.style.gridColumn = `span ${span}`;
-                weekNumHeader.appendChild(wEl);
-            }
+            const span = m.days - weekStart + 1;
+            const wEl = document.createElement('div');
+            wEl.className = 'week-num-label';
+            wEl.innerText = 'W' + currentWeek;
+            wEl.style.gridColumn = `span ${span}`;
+            weekNumHeader.appendChild(wEl);
         });
     }
 }
