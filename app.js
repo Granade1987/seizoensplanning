@@ -1,3 +1,18 @@
+// Jouw Firebase configuratie
+const firebaseConfig = {
+    apiKey: "AIzaSyBarLPNYzRq_A-UBCQDh7VvNyv0Vaq_6u4",
+    authDomain: "seizoensplanning.firebaseapp.com",
+    databaseURL: "https://seizoensplanning-default-rtdb.firebaseio.com",
+    projectId: "seizoensplanning",
+    storageBucket: "seizoensplanning.firebasestorage.app",
+    messagingSenderId: "951299690860",
+    appId: "1:951299690860:web:a415d61fdf1f5e01d46349"
+};
+
+// Initialiseer Firebase
+firebase.initializeApp(firebaseConfig);
+const database = firebase.database();
+
 let campaigns = [];
 let activeFilters = ['Logistiek', 'Webshop', 'MJFM', 'Outlet', 'Marketing', 'Winkels'];
 
@@ -22,7 +37,7 @@ const monthStructure = [
 document.addEventListener('DOMContentLoaded', () => {
     buildHeaders();
     createLegend();
-    loadData();
+    listenToFirebase();
 });
 
 function buildHeaders() {
@@ -30,7 +45,6 @@ function buildHeaders() {
     const weekHeader = document.getElementById('weekHeader');
     monthHeader.innerHTML = ''; 
     weekHeader.innerHTML = '';
-
     monthStructure.forEach(m => {
         const el = document.createElement('div');
         el.className = 'month-label';
@@ -38,7 +52,6 @@ function buildHeaders() {
         el.style.gridColumn = `span ${m.weeks}`;
         monthHeader.appendChild(el);
     });
-
     for (let i = 1; i <= 52; i++) {
         const el = document.createElement('div');
         el.className = 'week-num';
@@ -56,16 +69,22 @@ function createLegend() {
         item.className = `legend-item ${isActive ? 'active' : 'inactive'}`;
         item.innerHTML = `<div class="legend-color" style="background:${departments[dept]}"></div>${dept}`;
         item.onclick = () => {
-            if (activeFilters.includes(dept)) {
-                activeFilters = activeFilters.filter(f => f !== dept);
-            } else {
-                activeFilters.push(dept);
-            }
+            if (activeFilters.includes(dept)) activeFilters = activeFilters.filter(f => f !== dept);
+            else activeFilters.push(dept);
             if (activeFilters.length === 0) activeFilters = Object.keys(departments);
             createLegend();
             renderCampaigns();
         };
         legendEl.appendChild(item);
+    });
+}
+
+// Luister live naar wijzigingen van iedereen
+function listenToFirebase() {
+    database.ref('campaigns').on('value', (snapshot) => {
+        const data = snapshot.val();
+        campaigns = data ? Object.values(data) : [];
+        renderCampaigns();
     });
 }
 
@@ -89,33 +108,23 @@ function renderCampaigns() {
         bar.style.backgroundColor = item.color;
         bar.style.gridColumn = `${item.startWeek} / span ${span}`;
         bar.style.gridRow = rowIndex + 1;
-        bar.onclick = (e) => {
-            e.stopPropagation();
-            openModal(item.id);
-        };
+        bar.onclick = (e) => { e.stopPropagation(); openModal(item.id); };
         grid.appendChild(bar);
     });
 }
 
 function openModal(editId = null) {
-    const modal = document.getElementById('itemModal');
-    const deleteBtn = document.getElementById('deleteBtn');
-    
-    // Zorg dat modal op flex staat om zichtbaar te worden
-    modal.style.display = 'flex';
-
+    document.getElementById('itemModal').style.display = 'flex';
     if (editId) {
-        const item = campaigns.find(c => c.id === editId);
-        if (item) {
-            document.getElementById('modalTitle').innerText = "Item Bewerken";
-            document.getElementById('currentId').value = item.id;
-            document.getElementById('taskName').value = item.title;
-            document.getElementById('department').value = item.department;
-            document.getElementById('taskDesc').value = item.description || '';
-            document.getElementById('startWeek').value = item.startWeek;
-            document.getElementById('endWeek').value = item.endWeek;
-            deleteBtn.style.display = 'block';
-        }
+        const item = campaigns.find(c => c.id == editId);
+        document.getElementById('modalTitle').innerText = "Item Bewerken";
+        document.getElementById('currentId').value = item.id;
+        document.getElementById('taskName').value = item.title;
+        document.getElementById('department').value = item.department;
+        document.getElementById('taskDesc').value = item.description || '';
+        document.getElementById('startWeek').value = item.startWeek;
+        document.getElementById('endWeek').value = item.endWeek;
+        document.getElementById('deleteBtn').style.display = 'block';
     } else {
         document.getElementById('modalTitle').innerText = "Nieuw Item";
         document.getElementById('currentId').value = '';
@@ -123,68 +132,38 @@ function openModal(editId = null) {
         document.getElementById('taskDesc').value = '';
         document.getElementById('startWeek').value = '';
         document.getElementById('endWeek').value = '';
-        deleteBtn.style.display = 'none';
+        document.getElementById('deleteBtn').style.display = 'none';
     }
 }
 
-function closeModal() { 
-    document.getElementById('itemModal').style.display = 'none'; 
-}
+function closeModal() { document.getElementById('itemModal').style.display = 'none'; }
 
 function saveTask() {
-    const id = document.getElementById('currentId').value;
+    const idValue = document.getElementById('currentId').value;
+    const id = idValue ? idValue : Date.now().toString();
     const title = document.getElementById('taskName').value;
     const dept = document.getElementById('department').value;
     const start = parseInt(document.getElementById('startWeek').value);
     const end = parseInt(document.getElementById('endWeek').value);
 
-    if (!title || isNaN(start) || isNaN(end) || start > end) {
-        alert("Vul alle velden correct in."); 
-        return;
-    }
+    if (!title || isNaN(start) || isNaN(end) || start > end) return alert("Check de velden.");
 
     const data = { 
-        id: id ? parseInt(id) : Date.now(),
-        title, 
-        department: dept, 
+        id: id, title, department: dept, 
         description: document.getElementById('taskDesc').value, 
-        startWeek: start, 
-        endWeek: end, 
-        color: departments[dept] 
+        startWeek: start, endWeek: end, color: departments[dept] 
     };
 
-    if (id) {
-        const i = campaigns.findIndex(c => c.id == id);
-        campaigns[i] = data;
-    } else {
-        campaigns.push(data);
-    }
-
-    localStorage.setItem('plannerData_v5', JSON.stringify(campaigns));
-    renderCampaigns();
+    database.ref('campaigns/' + id).set(data);
     closeModal();
 }
 
 function deleteItem() {
     const id = document.getElementById('currentId').value;
-    if (id && confirm("Wil je dit item verwijderen?")) {
-        campaigns = campaigns.filter(c => c.id != id);
-        localStorage.setItem('plannerData_v5', JSON.stringify(campaigns));
-        renderCampaigns();
+    if (id && confirm("Verwijderen?")) {
+        database.ref('campaigns/' + id).remove();
         closeModal();
     }
 }
 
-function loadData() {
-    const data = localStorage.getItem('plannerData_v5');
-    if (data) { 
-        campaigns = JSON.parse(data); 
-        renderCampaigns(); 
-    }
-}
-
-// Sluiten bij klik buiten het witte vlak
-window.onclick = (e) => { 
-    const modal = document.getElementById('itemModal');
-    if (e.target === modal) closeModal(); 
-};
+window.onclick = (e) => { if (e.target.className === 'modal') closeModal(); };
