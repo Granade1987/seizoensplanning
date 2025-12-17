@@ -44,8 +44,8 @@ function switchView(view, btn) {
     if (view === 'day') {
         root.style.setProperty('--column-width', '35px');
         root.style.setProperty('--total-cols', '365');
-        grid.style.maxHeight = '';
-        grid.style.overflowY = '';
+        grid.style.maxHeight = '400px';
+        grid.style.overflowY = 'auto';
     } else if (view === 'week') {
         root.style.setProperty('--column-width', '60px');
         root.style.setProperty('--total-cols', '53');
@@ -91,20 +91,45 @@ function buildHeaders() {
         }
     } else if (currentView === 'day') {
         monthHeader.style.display = 'grid';
-        weekNumHeader.style.display = 'none';
+        weekNumHeader.style.display = 'grid';
         weekHeader.style.display = 'grid';
         monthStructure.forEach((m, mIdx) => {
             const el = document.createElement('div');
             el.className = 'month-label'; el.innerText = m.name;
             el.style.gridColumn = `span ${m.days}`;
             monthHeader.appendChild(el);
+
+            let currentWeek = null;
+            let weekStart = 1;
             for (let d = 1; d <= m.days; d++) {
                 const date = new Date(2026, mIdx, d);
+                const week = getWeekNumber(date);
+                if (currentWeek !== week) {
+                    if (currentWeek !== null) {
+                        const span = d - weekStart;
+                        const wEl = document.createElement('div');
+                        wEl.className = 'week-num-label';
+                        wEl.innerText = 'W' + currentWeek;
+                        wEl.style.gridColumn = `span ${span}`;
+                        weekNumHeader.appendChild(wEl);
+                    }
+                    currentWeek = week;
+                    weekStart = d;
+                }
                 const isWeekend = (date.getDay() === 0 || date.getDay() === 6);
                 const dEl = document.createElement('div');
                 dEl.className = 'week-num' + (isWeekend ? ' weekend' : '');
                 dEl.innerText = d;
                 weekHeader.appendChild(dEl);
+            }
+            // Laatste week
+            if (currentWeek !== null) {
+                const span = m.days - weekStart + 1;
+                const wEl = document.createElement('div');
+                wEl.className = 'week-num-label';
+                wEl.innerText = 'W' + currentWeek;
+                wEl.style.gridColumn = `span ${span}`;
+                weekNumHeader.appendChild(wEl);
             }
         });
     }
