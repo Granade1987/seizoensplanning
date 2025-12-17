@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Jaarplanning 2026</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="container">
@@ -36,14 +35,13 @@
 
     <div id="itemModal" class="modal">
         <div class="modal-content">
+            <span class="close-modal" onclick="closeModal()">&times;</span>
             <h2 id="modalTitle">Item Bewerken</h2>
             <input type="hidden" id="currentId">
-            
             <div class="form-group">
                 <label>Titel</label>
                 <input type="text" id="taskName">
             </div>
-
             <div class="form-group">
                 <label>Afdeling</label>
                 <select id="department">
@@ -55,43 +53,39 @@
                     <option value="Winkels">Winkels</option>
                 </select>
             </div>
-
-            <div class="input-row">
-                <div class="form-group">
+            <div class="input-row" style="display:flex; gap:10px;">
+                <div class="form-group" style="flex:1;">
                     <label>Start week</label>
                     <input type="number" id="startWeek" min="1" max="53">
                 </div>
-                <div class="form-group">
+                <div class="form-group" style="flex:1;">
                     <label>Eind week</label>
                     <input type="number" id="endWeek" min="1" max="53">
                 </div>
             </div>
-
             <div class="form-group">
                 <label>Beschrijving</label>
                 <textarea id="taskDesc" rows="2"></textarea>
             </div>
-
             <div class="form-group">
                 <label>Bijlage (URL)</label>
-                <div class="url-bar">
+                <div style="display:flex; gap:5px;">
                     <input type="url" id="attachmentUrl" placeholder="https://...">
-                    <button type="button" class="btn-link-icon" onclick="openAttachment()">🔗</button>
+                    <button type="button" class="btn-icon-link" onclick="openAttachment()">🔗</button>
                 </div>
             </div>
-
-            <div class="comment-section">
-                <label>Comments / Updates</label>
-                <div id="commentsList" class="comments-box"></div>
-                <div class="comment-input-row">
-                    <input type="text" id="newComment" placeholder="Typ een update...">
-                    <button type="button" onclick="addComment()" class="btn-post">Post</button>
+            <hr class="modal-divider">
+            <div class="form-group">
+                <label>Comments</label>
+                <div id="commentsList" class="comments-display"></div>
+                <div style="display:flex; gap:5px; margin-top:10px;">
+                    <input type="text" id="newComment" placeholder="Nieuwe update...">
+                    <button type="button" onclick="addComment()" class="btn-comment">Post</button>
                 </div>
             </div>
-
-            <div class="modal-footer">
-                <button id="deleteBtn" onclick="deleteItem()" class="btn-delete">Verwijderen</button>
-                <div class="footer-right">
+            <div class="modal-buttons" style="display:flex; justify-content:space-between; margin-top:25px;">
+                <button id="deleteBtn" onclick="deleteItem()" class="btn-delete-item">Verwijderen</button>
+                <div style="display:flex; gap:10px;">
                     <button type="button" onclick="closeModal()" class="btn-cancel">Annuleren</button>
                     <button type="button" onclick="saveTask()" class="btn-save">Opslaan</button>
                 </div>
