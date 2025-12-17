@@ -12,7 +12,7 @@
         <header>
             <div class="header-content">
                 <h1>Marketing Jaarplanning 2025</h1>
-                <p>Klik op de afdelingen in de legenda om te filteren. Meerdere selecties mogelijk.</p>
+                <p>Klik op de afdelingen om te filteren. Klik op een item om te bewerken.</p>
             </div>
             <div class="actions">
                 <button class="btn-main" onclick="openModal()">+ Nieuw Item</button>
@@ -22,8 +22,11 @@
         <div class="legend" id="legend"></div>
 
         <div class="timeline-wrapper">
-            <div class="timeline-months" id="monthHeader"></div>
-            <div class="timeline-weeks" id="weekHeader"></div>
+            <div class="timeline-header">
+                <div class="timeline-months" id="monthHeader"></div>
+                <div class="timeline-weeks" id="weekHeader"></div>
+            </div>
+            
             <div class="timeline-grid" id="timelineGrid"></div>
         </div>
     </div>
@@ -37,7 +40,7 @@
             
             <div class="form-group">
                 <label for="taskName">Titel</label>
-                <input type="text" id="taskName" placeholder="Bijv. Zomeruitverkoop">
+                <input type="text" id="taskName" placeholder="Bijv. Black Friday Actie">
             </div>
 
             <div class="form-group">

@@ -10,7 +10,8 @@ const departments = {
     'Winkels': '#6366f1'
 };
 
-const months = [
+// Exacte verdeling van weken over maanden voor 2025
+const monthStructure = [
     { name: 'Januari', weeks: 4 }, { name: 'Februari', weeks: 4 },
     { name: 'Maart', weeks: 5 }, { name: 'April', weeks: 4 },
     { name: 'Mei', weeks: 4 }, { name: 'Juni', weeks: 5 },
@@ -20,82 +21,91 @@ const months = [
 ];
 
 document.addEventListener('DOMContentLoaded', () => {
-    initTimelineHeaders();
+    buildHeaders();
     createLegend();
     loadData();
 });
 
-function initTimelineHeaders() {
+function buildHeaders() {
     const monthHeader = document.getElementById('monthHeader');
     const weekHeader = document.getElementById('weekHeader');
-    months.forEach(m => {
-        const div = document.createElement('div');
-        div.className = 'month-label';
-        div.innerText = m.name;
-        div.style.gridColumn = `span ${m.weeks}`;
-        monthHeader.appendChild(div);
+
+    monthHeader.innerHTML = '';
+    weekHeader.innerHTML = '';
+
+    monthStructure.forEach(m => {
+        const el = document.createElement('div');
+        el.className = 'month-label';
+        el.innerText = m.name;
+        el.style.gridColumn = `span ${m.weeks}`;
+        monthHeader.appendChild(el);
     });
+
     for (let i = 1; i <= 52; i++) {
-        const div = document.createElement('div');
-        div.className = 'week-num';
-        div.innerText = i;
-        weekHeader.appendChild(div);
+        const el = document.createElement('div');
+        el.className = 'week-num';
+        el.innerText = i;
+        weekHeader.appendChild(el);
     }
 }
 
 function createLegend() {
     const legendEl = document.getElementById('legend');
     legendEl.innerHTML = '';
-    for (const [dept, color] of Object.entries(departments)) {
-        const item = document.createElement('div');
+    Object.keys(departments).forEach(dept => {
         const isActive = activeFilters.includes(dept);
+        const item = document.createElement('div');
         item.className = `legend-item ${isActive ? 'active' : 'inactive'}`;
-        item.innerHTML = `<div class="legend-color" style="background:${color}"></div>${dept}`;
-        
-        item.onclick = () => toggleFilter(dept);
+        item.innerHTML = `<div class="legend-color" style="background:${departments[dept]}"></div>${dept}`;
+        item.onclick = () => {
+            if (activeFilters.includes(dept)) {
+                activeFilters = activeFilters.filter(f => f !== dept);
+            } else {
+                activeFilters.push(dept);
+            }
+            if (activeFilters.length === 0) activeFilters = Object.keys(departments);
+            createLegend();
+            renderCampaigns();
+        };
         legendEl.appendChild(item);
-    }
-}
-
-function toggleFilter(dept) {
-    if (activeFilters.includes(dept)) {
-        // Als het de laatste actieve is, doe niets (of optioneel: reset naar alles)
-        activeFilters = activeFilters.filter(f => f !== dept);
-    } else {
-        activeFilters.push(dept);
-    }
-    
-    // Als alles uit staat, zet dan alles weer aan (voor gebruiksgemak)
-    if (activeFilters.length === 0) {
-        activeFilters = Object.keys(departments);
-    }
-
-    createLegend();
-    renderCampaigns();
+    });
 }
 
 function renderCampaigns() {
     const grid = document.getElementById('timelineGrid');
     grid.innerHTML = '';
     
-    // Filteren op basis van geselecteerde afdelingen
     const filtered = campaigns.filter(c => activeFilters.includes(c.department));
-    filtered.sort((a, b) => a.startWeek - b.startWeek);
+    
+    // Groepeer items op rijen zodat ze niet over elkaar heen vallen
+    const rows = [];
+    filtered.sort((a, b) => a.startWeek - b.startWeek).forEach(item => {
+        let rowIndex = rows.findIndex(row => row.every(placed => 
+            item.endWeek < placed.startWeek || item.startWeek > placed.endWeek
+        ));
+        
+        if (rowIndex === -1) {
+            rows.push([item]);
+            rowIndex = rows.length - 1;
+        } else {
+            rows[rowIndex].push(item);
+        }
 
-    filtered.forEach(item => {
         const span = (item.endWeek - item.startWeek) + 1;
         const bar = document.createElement('div');
         bar.className = 'task-bar';
         bar.innerText = item.title;
         bar.style.backgroundColor = item.color;
         bar.style.gridColumn = `${item.startWeek} / span ${span}`;
+        bar.style.gridRow = rowIndex + 1;
         bar.onclick = () => openModal(item.id);
         grid.appendChild(bar);
     });
 }
 
 function openModal(editId = null) {
-    document.getElementById('itemModal').style.display = 'flex';
+    const modal = document.getElementById('itemModal');
+    modal.style.display = 'flex';
     if (editId) {
         const item = campaigns.find(c => c.id === editId);
         document.getElementById('modalTitle').innerText = "Item Bewerken";
@@ -107,8 +117,10 @@ function openModal(editId = null) {
         document.getElementById('endWeek').value = item.endWeek;
         document.getElementById('deleteBtn').style.display = 'block';
     } else {
-        document.getElementById('modalTitle').innerText = "Nieuw Item Toevoegen";
-        resetForm();
+        document.getElementById('modalTitle').innerText = "Nieuw Item";
+        document.getElementById('currentId').value = '';
+        document.getElementById('taskName').value = '';
+        document.getElementById('taskDesc').value = '';
         document.getElementById('deleteBtn').style.display = 'none';
     }
 }
@@ -119,24 +131,22 @@ function saveTask() {
     const id = document.getElementById('currentId').value;
     const title = document.getElementById('taskName').value;
     const dept = document.getElementById('department').value;
-    const desc = document.getElementById('taskDesc').value;
     const start = parseInt(document.getElementById('startWeek').value);
     const end = parseInt(document.getElementById('endWeek').value);
 
-    if (!title || !start || !end || start > end) {
-        alert("Controleer invoer."); return;
-    }
+    if (!title || !start || !end || start > end) return alert("Controleer de velden.");
 
-    const taskObj = { title, department: dept, description: desc, startWeek: start, endWeek: end, color: departments[dept] };
+    const data = { title, department: dept, description: document.getElementById('taskDesc').value, startWeek: start, endWeek: end, color: departments[dept] };
 
     if (id) {
-        const index = campaigns.findIndex(c => c.id == id);
-        campaigns[index] = { ...campaigns[index], ...taskObj };
+        const i = campaigns.findIndex(c => c.id == id);
+        campaigns[i] = { ...campaigns[i], ...data };
     } else {
-        campaigns.push({ id: Date.now(), ...taskObj });
+        campaigns.push({ id: Date.now(), ...data });
     }
 
-    saveAndRender();
+    localStorage.setItem('plannerData_final', JSON.stringify(campaigns));
+    renderCampaigns();
     closeModal();
 }
 
@@ -144,30 +154,18 @@ function deleteItem() {
     const id = document.getElementById('currentId').value;
     if (confirm("Verwijderen?")) {
         campaigns = campaigns.filter(c => c.id != id);
-        saveAndRender();
+        localStorage.setItem('plannerData_final', JSON.stringify(campaigns));
+        renderCampaigns();
         closeModal();
     }
 }
 
-function saveAndRender() {
-    localStorage.setItem('marketingPlanner_v4', JSON.stringify(campaigns));
-    renderCampaigns();
-}
-
 function loadData() {
-    const data = localStorage.getItem('marketingPlanner_v4');
+    const data = localStorage.getItem('plannerData_final');
     if (data) {
         campaigns = JSON.parse(data);
         renderCampaigns();
     }
 }
 
-function resetForm() {
-    document.getElementById('currentId').value = '';
-    document.getElementById('taskName').value = '';
-    document.getElementById('taskDesc').value = '';
-    document.getElementById('startWeek').value = '';
-    document.getElementById('endWeek').value = '';
-}
-
-window.onclick = (e) => { if (e.target == document.getElementById('itemModal')) closeModal(); };
+window.onclick = (e) => { if (e.target.className === 'modal') closeModal(); };
