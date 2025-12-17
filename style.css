@@ -12,19 +12,16 @@ body { font-family: 'Inter', sans-serif; background: var(--bg-main); margin: 0; 
 .container { max-width: 98vw; margin: 0 auto; }
 header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
 
-/* Knoppen bovenin */
 .view-switcher { display: flex; background: #e5e7eb; padding: 4px; border-radius: 10px; }
 .btn-view { padding: 8px 16px; border: none; background: transparent; cursor: pointer; font-weight: 600; border-radius: 8px; font-size: 13px; }
 .btn-view.active { background: white; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
 .btn-main { background: var(--primary); color: white; padding: 10px 20px; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; }
 
-/* Legend */
 .legend { display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; background: white; padding: 15px; border-radius: 12px; border: 1px solid var(--border-color); }
 .legend-item { display: flex; align-items: center; font-size: 13px; font-weight: 600; cursor: pointer; padding: 5px 10px; border-radius: 6px; }
 .legend-item.inactive { opacity: 0.3; }
 .legend-color { width: 12px; height: 12px; border-radius: 3px; margin-right: 8px; }
 
-/* Kalender Grid Fix */
 .timeline-wrapper { background: white; border-radius: 12px; overflow-x: auto; border: 1px solid var(--border-color); position: relative; }
 .timeline-header { position: sticky; top: 0; z-index: 100; background: white; width: max-content; border-bottom: 1px solid var(--border-color); }
 
@@ -40,39 +37,40 @@ header { display: flex; justify-content: space-between; align-items: center; mar
 .week-num.weekend { background-color: #e2e8f0; color: #64748b; }
 
 .timeline-grid { 
-    min-height: 200px; /* Geen gigantische leegte meer */
+    min-height: 100px;
     grid-auto-rows: 55px; 
-    align-content: start; /* Dwingt rijen naar boven */
+    align-content: start; /* DIT ZORGT DAT HET GRID COMPACT BLIJFT */
     position: relative; 
     background-image: linear-gradient(to right, var(--border-color) 1px, transparent 1px); 
     background-size: var(--column-width) 100%; 
-    padding-bottom: 40px;
+    padding-bottom: 20px;
 }
 
-/* Weekend kolommen via JS toegevoegd maar met beperkte hoogte */
-.weekend-col { 
-    background-color: rgba(226, 232, 240, 0.4); 
-    grid-row: 1 / 50; /* Beperkt tot een normale hoeveelheid rijen */
-    pointer-events: none; 
-    border-right: 1px solid var(--border-color);
+/* De nieuwe manier om weekenden te tonen zonder de diepte te beïnvloeden */
+.weekend-overlay {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    background-color: rgba(226, 232, 240, 0.4);
+    pointer-events: none;
     z-index: 1;
 }
 
 .task-bar { 
-    color: white; border-radius: 6px; margin: 8px 4px; padding: 8px; font-size: 11px; font-weight: 700; 
+    color: white; border-radius: 8px; margin: 8px 4px; padding: 10px; font-size: 11px; font-weight: 700; 
     cursor: pointer; display: flex; justify-content: space-between; align-items: center; 
-    overflow: hidden; z-index: 10; box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    z-index: 10; box-shadow: 0 2px 4px rgba(0,0,0,0.1); border: none;
 }
 
-/* Modal Knoppen & Layout */
+/* Modal Styling */
 .modal { display: none; position: fixed; z-index: 2000; inset: 0; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; }
-.modal-content { background: white; padding: 25px; border-radius: 15px; width: 450px; max-height: 90vh; overflow-y: auto; position: relative; }
+.modal-content { background: white; padding: 30px; border-radius: 15px; width: 450px; max-height: 90vh; overflow-y: auto; position: relative; }
 .modal-content input, .modal-content select, .modal-content textarea {
-    width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 8px; margin-top: 5px; box-sizing: border-box; font-family: inherit;
+    width: 100%; padding: 12px; border: 1px solid #d1d5db; border-radius: 8px; margin-top: 5px; box-sizing: border-box; font-family: inherit;
 }
-.btn-save { background: var(--success); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; }
-.btn-cancel { background: #f3f4f6; color: #374151; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; }
+.btn-save { background: var(--success); color: white; border: none; padding: 10px 25px; border-radius: 8px; cursor: pointer; font-weight: 600; }
+.btn-cancel { background: #f3f4f6; color: #374151; border: none; padding: 10px 25px; border-radius: 8px; cursor: pointer; font-weight: 600; }
 .btn-delete-item { background: #fee2e2; color: var(--danger); border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer; font-weight: 600; }
 .btn-comment { background: var(--primary); color: white; border: none; padding: 0 15px; border-radius: 8px; cursor: pointer; }
-.btn-icon-link { background: #f3f4f6; border: 1px solid #d1d5db; padding: 5px 12px; border-radius: 8px; cursor: pointer; }
-.comments-display { max-height: 120px; overflow-y: auto; background: #f9fafb; padding: 10px; border-radius: 8px; border: 1px solid #eee; margin-top: 10px; }
+.btn-icon-link { background: #f3f4f6; border: 1px solid #d1d5db; padding: 8px; border-radius: 8px; cursor: pointer; }
+.comments-display { max-height: 150px; overflow-y: auto; background: #f9fafb; padding: 10px; border-radius: 8px; border: 1px solid #eee; margin-top: 10px; }

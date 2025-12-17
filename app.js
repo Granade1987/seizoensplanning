@@ -103,15 +103,15 @@ function renderCampaigns() {
     const grid = document.getElementById('timelineGrid');
     grid.innerHTML = '';
     
-    // Voeg weekend kolommen toe alleen als dagniveau (beperkte hoogte)
+    // Weekend overlays (geen grid-items meer, dus geen hoogte impact)
     if (currentView === 'day') {
         for (let i = 1; i <= 365; i++) {
             const date = new Date(2026, 0, i);
             if (date.getDay() === 0 || date.getDay() === 6) {
-                const col = document.createElement('div');
-                col.className = 'weekend-col';
-                col.style.gridColumn = i;
-                grid.appendChild(col);
+                const overlay = document.createElement('div');
+                overlay.className = 'weekend-overlay';
+                overlay.style.gridColumn = i;
+                grid.appendChild(overlay);
             }
         }
     }
@@ -146,6 +146,8 @@ function renderCampaigns() {
         grid.appendChild(bar);
     });
 }
+
+// ... Rest van de functies (listenToFirebase, openModal, saveTask, etc) blijven hetzelfde ...
 
 function listenToFirebase() {
     database.ref('campaigns_2026').on('value', (s) => {
@@ -248,12 +250,6 @@ function createLegend() {
 function toggleFilter(d) {
     activeFilters.includes(d) ? activeFilters = activeFilters.filter(f => f !== d) : activeFilters.push(d);
     createLegend(); renderCampaigns();
-}
-
-function getISOWeek(date) {
-    const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
-    d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
-    return Math.ceil((((d - new Date(Date.UTC(d.getUTCFullYear(), 0, 1))) / 86400000) + 1) / 7);
 }
 
 window.onclick = (e) => { if(e.target.className === 'modal') closeModal(); };
