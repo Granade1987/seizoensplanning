@@ -117,7 +117,7 @@ function renderCampaigns() {
             if (date.getDay() === 0 || date.getDay() === 6) {
                 const col = document.createElement('div');
                 col.className = 'weekend-col';
-                col.style.gridColumn = i;
+                col.style.left = `${(i-1) * 35}px`;
                 grid.appendChild(col);
             }
         }
