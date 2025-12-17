@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Marketing Jaarplanning 2025</title>
+    <title>Marketing Jaarplanning 2026</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -11,7 +11,7 @@
     <div class="container">
         <header>
             <div class="header-content">
-                <h1>Marketing Jaarplanning 2026</h1>
+                <h1>Marketing Jaarplanning 2025</h1>
                 <p>Klik op de afdelingen om te filteren. Klik op een item om te bewerken.</p>
             </div>
             <div class="actions">
@@ -59,7 +59,7 @@
                 <textarea id="taskDesc" rows="3" placeholder="Extra informatie..."></textarea>
             </div>
             
-            <div class="input-row spacer-y">
+            <div class="input-row">
                 <div class="form-group">
                     <label>Start week</label>
                     <input type="number" id="startWeek" min="1" max="52">
@@ -73,8 +73,8 @@
             <div class="modal-buttons">
                 <button id="deleteBtn" onclick="deleteItem()" class="btn-delete-item">Verwijderen</button>
                 <div class="right-buttons">
-                    <button onclick="closeModal()" class="btn-cancel">Annuleren</button>
-                    <button onclick="saveTask()" class="btn-save">Opslaan</button>
+                    <button type="button" onclick="closeModal()" class="btn-cancel">Annuleren</button>
+                    <button type="button" onclick="saveTask()" class="btn-save">Opslaan</button>
                 </div>
             </div>
         </div>

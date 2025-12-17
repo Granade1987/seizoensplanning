@@ -28,7 +28,8 @@ document.addEventListener('DOMContentLoaded', () => {
 function buildHeaders() {
     const monthHeader = document.getElementById('monthHeader');
     const weekHeader = document.getElementById('weekHeader');
-    monthHeader.innerHTML = ''; weekHeader.innerHTML = '';
+    monthHeader.innerHTML = ''; 
+    weekHeader.innerHTML = '';
 
     monthStructure.forEach(m => {
         const el = document.createElement('div');
@@ -88,24 +89,33 @@ function renderCampaigns() {
         bar.style.backgroundColor = item.color;
         bar.style.gridColumn = `${item.startWeek} / span ${span}`;
         bar.style.gridRow = rowIndex + 1;
-        bar.onclick = () => openModal(item.id);
+        bar.onclick = (e) => {
+            e.stopPropagation();
+            openModal(item.id);
+        };
         grid.appendChild(bar);
     });
 }
 
 function openModal(editId = null) {
     const modal = document.getElementById('itemModal');
+    const deleteBtn = document.getElementById('deleteBtn');
+    
+    // Zorg dat modal op flex staat om zichtbaar te worden
     modal.style.display = 'flex';
+
     if (editId) {
         const item = campaigns.find(c => c.id === editId);
-        document.getElementById('modalTitle').innerText = "Item Bewerken";
-        document.getElementById('currentId').value = item.id;
-        document.getElementById('taskName').value = item.title;
-        document.getElementById('department').value = item.department;
-        document.getElementById('taskDesc').value = item.description;
-        document.getElementById('startWeek').value = item.startWeek;
-        document.getElementById('endWeek').value = item.endWeek;
-        document.getElementById('deleteBtn').style.display = 'block';
+        if (item) {
+            document.getElementById('modalTitle').innerText = "Item Bewerken";
+            document.getElementById('currentId').value = item.id;
+            document.getElementById('taskName').value = item.title;
+            document.getElementById('department').value = item.department;
+            document.getElementById('taskDesc').value = item.description || '';
+            document.getElementById('startWeek').value = item.startWeek;
+            document.getElementById('endWeek').value = item.endWeek;
+            deleteBtn.style.display = 'block';
+        }
     } else {
         document.getElementById('modalTitle').innerText = "Nieuw Item";
         document.getElementById('currentId').value = '';
@@ -113,11 +123,13 @@ function openModal(editId = null) {
         document.getElementById('taskDesc').value = '';
         document.getElementById('startWeek').value = '';
         document.getElementById('endWeek').value = '';
-        document.getElementById('deleteBtn').style.display = 'none';
+        deleteBtn.style.display = 'none';
     }
 }
 
-function closeModal() { document.getElementById('itemModal').style.display = 'none'; }
+function closeModal() { 
+    document.getElementById('itemModal').style.display = 'none'; 
+}
 
 function saveTask() {
     const id = document.getElementById('currentId').value;
@@ -125,33 +137,54 @@ function saveTask() {
     const dept = document.getElementById('department').value;
     const start = parseInt(document.getElementById('startWeek').value);
     const end = parseInt(document.getElementById('endWeek').value);
-    if (!title || !start || !end || start > end) return alert("Controleer de velden.");
 
-    const data = { title, department: dept, description: document.getElementById('taskDesc').value, startWeek: start, endWeek: end, color: departments[dept] };
+    if (!title || isNaN(start) || isNaN(end) || start > end) {
+        alert("Vul alle velden correct in."); 
+        return;
+    }
+
+    const data = { 
+        id: id ? parseInt(id) : Date.now(),
+        title, 
+        department: dept, 
+        description: document.getElementById('taskDesc').value, 
+        startWeek: start, 
+        endWeek: end, 
+        color: departments[dept] 
+    };
+
     if (id) {
         const i = campaigns.findIndex(c => c.id == id);
-        campaigns[i] = { ...campaigns[i], ...data };
+        campaigns[i] = data;
     } else {
-        campaigns.push({ id: Date.now(), ...data });
+        campaigns.push(data);
     }
-    localStorage.setItem('plannerData_final', JSON.stringify(campaigns));
+
+    localStorage.setItem('plannerData_v5', JSON.stringify(campaigns));
     renderCampaigns();
     closeModal();
 }
 
 function deleteItem() {
     const id = document.getElementById('currentId').value;
-    if (confirm("Verwijderen?")) {
+    if (id && confirm("Wil je dit item verwijderen?")) {
         campaigns = campaigns.filter(c => c.id != id);
-        localStorage.setItem('plannerData_final', JSON.stringify(campaigns));
+        localStorage.setItem('plannerData_v5', JSON.stringify(campaigns));
         renderCampaigns();
         closeModal();
     }
 }
 
 function loadData() {
-    const data = localStorage.getItem('plannerData_final');
-    if (data) { campaigns = JSON.parse(data); renderCampaigns(); }
+    const data = localStorage.getItem('plannerData_v5');
+    if (data) { 
+        campaigns = JSON.parse(data); 
+        renderCampaigns(); 
+    }
 }
 
-window.onclick = (e) => { if (e.target.className === 'modal') closeModal(); };
+// Sluiten bij klik buiten het witte vlak
+window.onclick = (e) => { 
+    const modal = document.getElementById('itemModal');
+    if (e.target === modal) closeModal(); 
+};
