@@ -19,7 +19,6 @@ const departments = {
     'Outlet': '#ec4899', 'Marketing': '#10b981', 'Winkels': '#6366f1'
 };
 
-// Kalenderstructuur voor 2026
 const monthStructure = [
     { name: 'Januari', weeks: 4 }, { name: 'Februari', weeks: 4 },
     { name: 'Maart', weeks: 5 }, { name: 'April', weeks: 4 },
@@ -35,7 +34,6 @@ document.addEventListener('DOMContentLoaded', () => {
     listenToFirebase();
 });
 
-// Hulpmiddel om huidig weeknummer te berekenen
 function getISOWeek(date) {
     const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
     d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
@@ -70,25 +68,27 @@ function listenToFirebase() {
         const data = snapshot.val();
         campaigns = data ? Object.values(data) : [];
         renderCampaigns();
+        
+        // Ververs modal als deze open staat om de nieuwe comments direct te tonen
+        const openId = document.getElementById('currentId').value;
+        if (openId && document.getElementById('itemModal').style.display === 'flex') {
+            refreshCommentsOnly(openId);
+        }
     });
 }
 
 function renderCampaigns() {
     const grid = document.getElementById('timelineGrid');
     grid.innerHTML = '<div id="todayLine" class="today-line"></div>';
-    
     updateTodayLine();
-
     const filtered = campaigns.filter(c => activeFilters.includes(c.department));
     const rows = [];
-    
     filtered.sort((a, b) => a.startWeek - b.startWeek).forEach(item => {
         let rowIndex = rows.findIndex(row => row.every(placed => 
             item.endWeek < placed.startWeek || item.startWeek > placed.endWeek
         ));
         if (rowIndex === -1) { rows.push([item]); rowIndex = rows.length - 1; } 
         else { rows[rowIndex].push(item); }
-
         const span = (item.endWeek - item.startWeek) + 1;
         const bar = document.createElement('div');
         bar.className = 'task-bar';
@@ -103,14 +103,10 @@ function renderCampaigns() {
 
 function updateTodayLine() {
     const now = new Date();
-    // Alleen tekenen als we in 2026 zitten
     if (now.getFullYear() !== 2026) return;
-    
     const week = getISOWeek(now);
-    const dayOfWeek = now.getDay() || 7; // Maandag = 1, Zondag = 7
+    const dayOfWeek = now.getDay() || 7;
     const weekWidth = 50; 
-    
-    // Bereken positie: (weken gepasseerd * breedte) + (dagen in deze week * fractie van breedte)
     const position = ((week - 1) * weekWidth) + ((dayOfWeek - 1) * (weekWidth / 7));
     const line = document.getElementById('todayLine');
     if (line) line.style.left = position + 'px';
@@ -118,9 +114,7 @@ function updateTodayLine() {
 
 function openModal(editId = null) {
     document.getElementById('itemModal').style.display = 'flex';
-    const commentsList = document.getElementById('commentsList');
-    commentsList.innerHTML = '';
-    document.getElementById('newComment').value = '';
+    resetModal();
 
     if (editId) {
         const item = campaigns.find(c => c.id == editId);
@@ -132,25 +126,40 @@ function openModal(editId = null) {
         document.getElementById('startWeek').value = item.startWeek;
         document.getElementById('endWeek').value = item.endWeek;
         
-        if (item.comments) {
-            Object.values(item.comments).forEach(c => {
-                const div = document.createElement('div');
-                div.className = 'comment-item';
-                div.innerHTML = `<span class="comment-date">${c.date}</span> ${c.text}`;
-                commentsList.appendChild(div);
-            });
-        }
+        refreshCommentsOnly(editId);
         document.getElementById('deleteBtn').style.display = 'block';
     } else {
         document.getElementById('modalTitle').innerText = "Nieuw Item";
-        resetModal();
+    }
+}
+
+// Functie om alleen de lijst met comments te verversen
+function refreshCommentsOnly(itemId) {
+    const item = campaigns.find(c => c.id == itemId);
+    const commentsList = document.getElementById('commentsList');
+    commentsList.innerHTML = '';
+    
+    if (item && item.comments) {
+        // Firebase slaat ze op als object, we halen de unieke keys op
+        Object.keys(item.comments).forEach(key => {
+            const c = item.comments[key];
+            const div = document.createElement('div');
+            div.className = 'comment-item';
+            div.innerHTML = `
+                <div class="comment-text-wrapper">
+                    <span class="comment-date">${c.date}</span> ${c.text}
+                </div>
+                <span class="delete-comment" onclick="deleteComment('${key}')">&times;</span>
+            `;
+            commentsList.appendChild(div);
+        });
     }
 }
 
 function addComment() {
     const id = document.getElementById('currentId').value;
     const text = document.getElementById('newComment').value;
-    if (!id) return alert("Sla het item eerst op voordat je comments toevoegt.");
+    if (!id) return alert("Sla het item eerst op.");
     if (!text) return;
 
     const commentData = {
@@ -160,6 +169,14 @@ function addComment() {
 
     database.ref(`campaigns_2026/${id}/comments`).push(commentData);
     document.getElementById('newComment').value = '';
+}
+
+// NIEUWE FUNCTIE: Wissen van een comment
+function deleteComment(commentKey) {
+    const itemId = document.getElementById('currentId').value;
+    if (confirm("Wil je deze update verwijderen?")) {
+        database.ref(`campaigns_2026/${itemId}/comments/${commentKey}`).remove();
+    }
 }
 
 function saveTask() {
@@ -172,19 +189,11 @@ function saveTask() {
 
     if (!title || isNaN(start) || isNaN(end) || start > end) return alert("Check de velden.");
 
-    const itemRef = database.ref('campaigns_2026/' + id);
-    
-    // Update gebruiken om bestaande comments te behouden
-    itemRef.update({
-        id: id,
-        title: title,
-        department: dept,
+    database.ref('campaigns_2026/' + id).update({
+        id: id, title: title, department: dept,
         description: document.getElementById('taskDesc').value,
-        startWeek: start,
-        endWeek: end,
-        color: departments[dept]
+        startWeek: start, endWeek: end, color: departments[dept]
     });
-
     closeModal();
 }
 
@@ -224,5 +233,4 @@ function createLegend() {
         legendEl.appendChild(item);
     });
 }
-
 window.onclick = (e) => { if (e.target.className === 'modal') closeModal(); };

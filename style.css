@@ -52,7 +52,7 @@ header { display: flex; justify-content: space-between; align-items: center; mar
 }
 
 .week-num.current-week {
-    background-color: #fbbf24 !important; /* Goud-geel voor huidige week */
+    background-color: #fbbf24 !important;
     color: #000;
 }
 
@@ -98,8 +98,19 @@ input, textarea, select { width: 100%; padding: 12px; border: 1px solid #d1d5db;
     max-height: 120px; overflow-y: auto; background: #f9fafb;
     padding: 12px; border-radius: 10px; margin-bottom: 12px; border: 1px solid #eee;
 }
-.comment-item { font-size: 13px; margin-bottom: 8px; padding-bottom: 5px; border-bottom: 1px solid #f0f0f0; line-height: 1.4; }
+.comment-item { 
+    display: flex; justify-content: space-between; align-items: flex-start;
+    font-size: 13px; margin-bottom: 8px; padding-bottom: 5px; border-bottom: 1px solid #f0f0f0; line-height: 1.4; 
+}
+.comment-text-wrapper { flex: 1; }
 .comment-date { font-size: 10px; color: #9ca3af; font-weight: bold; margin-right: 6px; }
+
+/* HET KRUISJE */
+.delete-comment {
+    color: #9ca3af; cursor: pointer; font-size: 16px; font-weight: bold;
+    margin-left: 10px; padding: 0 5px; line-height: 1;
+}
+.delete-comment:hover { color: var(--danger); }
 
 .comment-input-group { display: flex; gap: 10px; }
 .btn-comment { background: var(--primary); color: white; border: none; border-radius: 8px; padding: 0 15px; cursor: pointer; font-weight: 600; }
