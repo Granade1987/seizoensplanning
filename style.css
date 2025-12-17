@@ -52,7 +52,7 @@ header { display: flex; justify-content: space-between; align-items: center; mar
 /* Weekend kolommen via JS toegevoegd maar met beperkte hoogte */
 .weekend-col { 
     background-color: rgba(226, 232, 240, 0.4); 
-    grid-row: 1 / 50; /* Beperkt tot een normale hoeveelheid rijen */
+    grid-row: 1 / -1; /* Past zich aan de hoogte aan zonder extra rijen te forceren */
     pointer-events: none; 
     border-right: 1px solid var(--border-color);
     z-index: 1;
