@@ -13,6 +13,7 @@ const database = firebase.database();
 
 let campaigns = [];
 let activeFilters = ['Logistiek', 'Webshop', 'MJFM', 'Outlet', 'Marketing', 'Winkels'];
+let currentView = 'week';
 
 const departments = {
     'Logistiek': '#f59e0b', 'Webshop': '#3b82f6', 'MJFM': '#8b5cf6',
@@ -20,60 +21,88 @@ const departments = {
 };
 
 const monthStructure = [
-    { name: 'Januari', weeks: 4 }, { name: 'Februari', weeks: 4 },
-    { name: 'Maart', weeks: 5 }, { name: 'April', weeks: 4 },
-    { name: 'Mei', weeks: 4 }, { name: 'Juni', weeks: 5 },
-    { name: 'Juli', weeks: 4 }, { name: 'Augustus', weeks: 4 },
-    { name: 'September', weeks: 5 }, { name: 'Oktober', weeks: 4 },
-    { name: 'November', weeks: 4 }, { name: 'December', weeks: 5 }
+    { name: 'Januari', days: 31, weeks: 4 }, { name: 'Februari', days: 28, weeks: 4 },
+    { name: 'Maart', days: 31, weeks: 5 }, { name: 'April', days: 30, weeks: 4 },
+    { name: 'Mei', days: 31, weeks: 4 }, { name: 'Juni', days: 30, weeks: 5 },
+    { name: 'Juli', days: 31, weeks: 4 }, { name: 'Augustus', days: 31, weeks: 4 },
+    { name: 'September', days: 30, weeks: 5 }, { name: 'Oktober', days: 31, weeks: 4 },
+    { name: 'November', days: 30, weeks: 4 }, { name: 'December', days: 31, weeks: 5 }
 ];
 
 document.addEventListener('DOMContentLoaded', () => {
-    buildHeaders();
+    switchView('week', document.querySelector('.btn-view.active'));
     createLegend();
     listenToFirebase();
 });
 
-function getISOWeek(date) {
-    const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
-    d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
-    const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
-    return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+function switchView(view, btn) {
+    currentView = view;
+    document.querySelectorAll('.btn-view').forEach(b => b.classList.remove('active'));
+    if(btn) btn.classList.add('active');
+    
+    const root = document.documentElement;
+    if (view === 'day') {
+        root.style.setProperty('--column-width', '40px');
+        root.style.setProperty('--total-cols', '365');
+    } else if (view === 'week') {
+        root.style.setProperty('--column-width', '60px');
+        root.style.setProperty('--total-cols', '53');
+    } else {
+        root.style.setProperty('--column-width', '150px');
+        root.style.setProperty('--total-cols', '12');
+    }
+
+    buildHeaders();
+    renderCampaigns();
+    if(view === 'day') scrollToToday();
 }
 
 function buildHeaders() {
     const monthHeader = document.getElementById('monthHeader');
     const weekHeader = document.getElementById('weekHeader');
-    const currentWeek = getISOWeek(new Date());
-
     monthHeader.innerHTML = ''; weekHeader.innerHTML = '';
-    monthStructure.forEach(m => {
-        const el = document.createElement('div');
-        el.className = 'month-label';
-        el.innerText = m.name;
-        el.style.gridColumn = `span ${m.weeks}`;
-        monthHeader.appendChild(el);
-    });
 
-    for (let i = 1; i <= 53; i++) {
-        const el = document.createElement('div');
-        el.className = 'week-num' + (i === currentWeek ? ' current-week' : '');
-        el.innerText = i;
-        weekHeader.appendChild(el);
-    }
-}
-
-function listenToFirebase() {
-    database.ref('campaigns_2026').on('value', (snapshot) => {
-        const data = snapshot.val();
-        campaigns = data ? Object.values(data) : [];
-        renderCampaigns();
-        
-        const openId = document.getElementById('currentId').value;
-        if (openId && document.getElementById('itemModal').style.display === 'flex') {
-            refreshCommentsOnly(openId);
+    if (currentView === 'month') {
+        monthHeader.style.display = 'none';
+        monthStructure.forEach(m => {
+            const el = document.createElement('div');
+            el.className = 'week-num';
+            el.innerText = m.name;
+            weekHeader.appendChild(el);
+        });
+    } else if (currentView === 'week') {
+        monthHeader.style.display = 'grid';
+        const curW = getISOWeek(new Date());
+        monthStructure.forEach(m => {
+            const el = document.createElement('div');
+            el.className = 'month-label';
+            el.innerText = m.name;
+            el.style.gridColumn = `span ${m.weeks}`;
+            monthHeader.appendChild(el);
+        });
+        for (let i = 1; i <= 53; i++) {
+            const el = document.createElement('div');
+            el.className = 'week-num' + (i === curW ? ' current-week' : '');
+            el.innerText = 'W' + i;
+            weekHeader.appendChild(el);
         }
-    });
+    } else if (currentView === 'day') {
+        monthHeader.style.display = 'grid';
+        monthStructure.forEach(m => {
+            const el = document.createElement('div');
+            el.className = 'month-label';
+            el.innerText = m.name;
+            el.style.gridColumn = `span ${m.days}`;
+            monthHeader.appendChild(el);
+        });
+        for (let i = 1; i <= 365; i++) {
+            const el = document.createElement('div');
+            el.className = 'week-num';
+            el.innerText = i;
+            el.style.fontSize = '8px';
+            weekHeader.appendChild(el);
+        }
+    }
 }
 
 function renderCampaigns() {
@@ -84,24 +113,30 @@ function renderCampaigns() {
     const filtered = campaigns.filter(c => activeFilters.includes(c.department));
     const rows = [];
     
-    filtered.sort((a, b) => a.startWeek - b.startWeek).forEach(item => {
-        let rowIndex = rows.findIndex(row => row.every(placed => 
-            item.endWeek < placed.startWeek || item.startWeek > placed.endWeek
-        ));
-        if (rowIndex === -1) { rows.push([item]); rowIndex = rows.length - 1; } 
-        else { rows[rowIndex].push(item); }
+    filtered.forEach(item => {
+        let start, end;
+        if (currentView === 'month') {
+            start = Math.floor(item.startWeek / 4.4) + 1; // Ruwe schatting voor maand
+            end = Math.floor(item.endWeek / 4.4) + 1;
+        } else if (currentView === 'day') {
+            start = (item.startWeek * 7) - 6;
+            end = item.endWeek * 7;
+        } else {
+            start = item.startWeek;
+            end = item.endWeek;
+        }
 
-        const span = (item.endWeek - item.startWeek) + 1;
+        let rowIndex = rows.findIndex(row => row.every(placed => end < placed.start || start > placed.end));
+        if (rowIndex === -1) { rows.push([{start, end}]); rowIndex = rows.length - 1; } 
+        else { rows[rowIndex].push({start, end}); }
+
         const bar = document.createElement('div');
         bar.className = 'task-bar';
-        
-        let attachIcon = item.attachmentUrl ? '📎' : '';
-        bar.innerHTML = `<span>${item.title}</span><span style="font-size:10px">${attachIcon}</span>`;
-        
+        bar.innerHTML = `<span>${item.title}</span> ${item.attachmentUrl ? '📎' : ''}`;
         bar.style.backgroundColor = item.color;
-        bar.style.gridColumn = `${item.startWeek} / span ${span}`;
+        bar.style.gridColumn = `${start} / span ${(end - start) + 1}`;
         bar.style.gridRow = rowIndex + 1;
-        bar.onclick = (e) => { e.stopPropagation(); openModal(item.id); };
+        bar.onclick = () => openModal(item.id);
         grid.appendChild(bar);
     });
 }
@@ -109,21 +144,46 @@ function renderCampaigns() {
 function updateTodayLine() {
     const now = new Date();
     if (now.getFullYear() !== 2026) return;
-    const week = getISOWeek(now);
-    const dayOfWeek = now.getDay() || 7;
-    const weekWidth = 50; 
-    const position = ((week - 1) * weekWidth) + ((dayOfWeek - 1) * (weekWidth / 7));
     const line = document.getElementById('todayLine');
-    if (line) line.style.left = position + 'px';
+    if (!line) return;
+
+    const colWidth = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--column-width'));
+    let pos = 0;
+    
+    if (currentView === 'day') {
+        const start = new Date(2026, 0, 0);
+        const diff = now - start;
+        pos = (Math.floor(diff / 86400000) - 1) * colWidth;
+    } else if (currentView === 'week') {
+        const w = getISOWeek(now);
+        pos = (w - 1) * colWidth + ((now.getDay() || 7) - 1) * (colWidth / 7);
+    } else {
+        pos = now.getMonth() * colWidth + (now.getDate() / 31) * colWidth;
+    }
+    line.style.left = pos + 'px';
 }
 
-function openModal(editId = null) {
+function scrollToToday() {
+    const wrapper = document.querySelector('.timeline-wrapper');
+    setTimeout(() => {
+        const line = document.getElementById('todayLine');
+        if(line) wrapper.scrollLeft = line.offsetLeft - 100;
+    }, 50);
+}
+
+// Firebase & Modal Logica
+function listenToFirebase() {
+    database.ref('campaigns_2026').on('value', (s) => {
+        campaigns = s.val() ? Object.values(s.val()) : [];
+        renderCampaigns();
+    });
+}
+
+function openModal(id = null) {
     document.getElementById('itemModal').style.display = 'flex';
     resetModal();
-
-    if (editId) {
-        const item = campaigns.find(c => c.id == editId);
-        document.getElementById('modalTitle').innerText = "Item Bewerken";
+    if (id) {
+        const item = campaigns.find(c => c.id == id);
         document.getElementById('currentId').value = item.id;
         document.getElementById('taskName').value = item.title;
         document.getElementById('department').value = item.department;
@@ -131,111 +191,94 @@ function openModal(editId = null) {
         document.getElementById('attachmentUrl').value = item.attachmentUrl || '';
         document.getElementById('startWeek').value = item.startWeek;
         document.getElementById('endWeek').value = item.endWeek;
-        
-        document.getElementById('openAttachBtn').style.display = item.attachmentUrl ? 'block' : 'none';
-        refreshCommentsOnly(editId);
         document.getElementById('deleteBtn').style.display = 'block';
-    } else {
-        document.getElementById('modalTitle').innerText = "Nieuw Item";
-        document.getElementById('openAttachBtn').style.display = 'none';
+        refreshCommentsOnly(id);
     }
 }
 
-function refreshCommentsOnly(itemId) {
-    const item = campaigns.find(c => c.id == itemId);
-    const commentsList = document.getElementById('commentsList');
-    commentsList.innerHTML = '';
-    if (item && item.comments) {
-        Object.keys(item.comments).forEach(key => {
-            const c = item.comments[key];
-            const div = document.createElement('div');
-            div.className = 'comment-item';
-            div.innerHTML = `
-                <div style="flex:1"><span style="font-size:10px; color:gray; font-weight:bold">${c.date}</span><br>${c.text}</div>
-                <span class="delete-comment" onclick="deleteComment('${key}')">&times;</span>
-            `;
-            commentsList.appendChild(div);
-        });
-    }
+function saveTask() {
+    const id = document.getElementById('currentId').value || Date.now().toString();
+    const data = {
+        id, title: document.getElementById('taskName').value,
+        department: document.getElementById('department').value,
+        description: document.getElementById('taskDesc').value,
+        attachmentUrl: document.getElementById('attachmentUrl').value,
+        startWeek: parseInt(document.getElementById('startWeek').value),
+        endWeek: parseInt(document.getElementById('endWeek').value),
+        color: departments[document.getElementById('department').value]
+    };
+    if(!data.title || !data.startWeek) return alert("Vul titel en startweek in.");
+    database.ref('campaigns_2026/' + id).update(data);
+    closeModal();
 }
 
 function addComment() {
     const id = document.getElementById('currentId').value;
     const text = document.getElementById('newComment').value;
-    if (!id || !text) return;
-
-    const commentData = {
-        text: text,
-        date: new Date().toLocaleDateString('nl-NL', {day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit'})
-    };
-    database.ref(`campaigns_2026/${id}/comments`).push(commentData);
-    document.getElementById('newComment').value = '';
+    if(!id || !text) return;
+    const comment = { text, date: new Date().toLocaleDateString('nl-NL', {day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit'}) };
+    database.ref(`campaigns_2026/${id}/comments`).push(comment).then(() => {
+        document.getElementById('newComment').value = '';
+        refreshCommentsOnly(id);
+    });
 }
 
-function deleteComment(commentKey) {
-    const itemId = document.getElementById('currentId').value;
-    if (confirm("Update verwijderen?")) {
-        database.ref(`campaigns_2026/${itemId}/comments/${commentKey}`).remove();
+function refreshCommentsOnly(itemId) {
+    const item = campaigns.find(c => c.id == itemId);
+    const list = document.getElementById('commentsList');
+    list.innerHTML = '';
+    if(item && item.comments) {
+        Object.keys(item.comments).forEach(key => {
+            const c = item.comments[key];
+            list.innerHTML += `<div class="comment-item"><span>${c.date}: ${c.text}</span><span class="delete-comment" onclick="deleteComment('${key}')">&times;</span></div>`;
+        });
     }
+}
+
+function deleteComment(key) {
+    const id = document.getElementById('currentId').value;
+    database.ref(`campaigns_2026/${id}/comments/${key}`).remove().then(() => refreshCommentsOnly(id));
 }
 
 function openAttachment() {
     const url = document.getElementById('attachmentUrl').value;
-    if (url) window.open(url, '_blank');
+    if(url) window.open(url, '_blank');
 }
-
-function saveTask() {
-    const idValue = document.getElementById('currentId').value;
-    const id = idValue ? idValue : Date.now().toString();
-    const title = document.getElementById('taskName').value;
-    const start = parseInt(document.getElementById('startWeek').value);
-    const end = parseInt(document.getElementById('endWeek').value);
-
-    if (!title || isNaN(start)) return alert("Check titel en startweek.");
-
-    database.ref('campaigns_2026/' + id).update({
-        id: id, title: title, department: document.getElementById('department').value,
-        description: document.getElementById('taskDesc').value,
-        attachmentUrl: document.getElementById('attachmentUrl').value,
-        startWeek: start, endWeek: end, color: departments[document.getElementById('department').value]
-    });
-    closeModal();
-}
-
-function resetModal() {
-    document.getElementById('currentId').value = '';
-    document.getElementById('taskName').value = '';
-    document.getElementById('taskDesc').value = '';
-    document.getElementById('attachmentUrl').value = '';
-    document.getElementById('startWeek').value = '';
-    document.getElementById('endWeek').value = '';
-    document.getElementById('deleteBtn').style.display = 'none';
-    document.getElementById('commentsList').innerHTML = '';
-}
-
-function closeModal() { document.getElementById('itemModal').style.display = 'none'; }
 
 function deleteItem() {
     const id = document.getElementById('currentId').value;
-    if (id && confirm("Item definitief verwijderen?")) {
+    if(confirm("Item verwijderen?")) {
         database.ref('campaigns_2026/' + id).remove();
         closeModal();
     }
 }
 
+function resetModal() {
+    document.getElementById('currentId').value = '';
+    document.getElementById('taskName').value = '';
+    document.getElementById('attachmentUrl').value = '';
+    document.getElementById('deleteBtn').style.display = 'none';
+}
+
+function closeModal() { document.getElementById('itemModal').style.display = 'none'; }
+
 function createLegend() {
-    const legendEl = document.getElementById('legend');
-    legendEl.innerHTML = '';
-    Object.keys(departments).forEach(dept => {
-        const item = document.createElement('div');
-        item.className = `legend-item ${activeFilters.includes(dept) ? 'active' : 'inactive'}`;
-        item.innerHTML = `<div class="legend-color" style="background:${departments[dept]}"></div>${dept}`;
-        item.onclick = () => {
-            activeFilters.includes(dept) ? activeFilters = activeFilters.filter(f => f !== dept) : activeFilters.push(dept);
-            if (activeFilters.length === 0) activeFilters = Object.keys(departments);
-            createLegend(); renderCampaigns();
-        };
-        legendEl.appendChild(item);
+    const leg = document.getElementById('legend');
+    leg.innerHTML = '';
+    Object.keys(departments).forEach(d => {
+        leg.innerHTML += `<div class="legend-item ${activeFilters.includes(d) ? 'active' : 'inactive'}" onclick="toggleFilter('${d}')"><div class="legend-color" style="background:${departments[d]}"></div>${d}</div>`;
     });
 }
-window.onclick = (e) => { if (e.target.className === 'modal') closeModal(); };
+
+function toggleFilter(d) {
+    activeFilters.includes(d) ? activeFilters = activeFilters.filter(f => f !== d) : activeFilters.push(d);
+    createLegend(); renderCampaigns();
+}
+
+function getISOWeek(date) {
+    const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+    d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+    return Math.ceil((((d - new Date(Date.UTC(d.getUTCFullYear(), 0, 1))) / 86400000) + 1) / 7);
+}
+
+window.onclick = (e) => { if(e.target.className === 'modal') closeModal(); };

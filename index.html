@@ -12,9 +12,14 @@
         <header>
             <div class="header-content">
                 <h1>Marketing Jaarplanning 2026</h1>
-                <p>Gedeelde team-kalender. De rode lijn geeft de huidige dag aan.</p>
+                <p>Team kalender met Dag/Week/Maand overzicht.</p>
             </div>
             <div class="actions">
+                <div class="view-switcher">
+                    <button class="btn-view" onclick="switchView('day', this)">Dag</button>
+                    <button class="btn-view active" onclick="switchView('week', this)">Week</button>
+                    <button class="btn-view" onclick="switchView('month', this)">Maand</button>
+                </div>
                 <button class="btn-main" onclick="openModal()">+ Nieuw Item</button>
             </div>
         </header>
@@ -39,7 +44,7 @@
             
             <div class="form-group">
                 <label for="taskName">Titel</label>
-                <input type="text" id="taskName" placeholder="Bijv. Voorjaarscampagne">
+                <input type="text" id="taskName">
             </div>
 
             <div class="form-group">
@@ -67,14 +72,14 @@
 
             <div class="form-group">
                 <label for="taskDesc">Beschrijving</label>
-                <textarea id="taskDesc" rows="2" placeholder="Wat gaan we doen?"></textarea>
+                <textarea id="taskDesc" rows="2"></textarea>
             </div>
 
             <div class="form-group">
-                <label for="attachmentUrl">Bijlage (URL naar Drive/Sharepoint/PDF)</label>
+                <label for="attachmentUrl">Bijlage (URL)</label>
                 <div class="input-with-action">
-                    <input type="url" id="attachmentUrl" placeholder="https://link-naar-bestand.nl">
-                    <button id="openAttachBtn" type="button" class="btn-icon" onclick="openAttachment()" title="Open bijlage">🔗</button>
+                    <input type="url" id="attachmentUrl" placeholder="https://...">
+                    <button id="openAttachBtn" type="button" class="btn-icon" onclick="openAttachment()">🔗</button>
                 </div>
             </div>
 
@@ -101,7 +106,6 @@
 
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-
     <script src="app.js"></script>
 </body>
 </html>
