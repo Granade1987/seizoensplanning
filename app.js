@@ -49,7 +49,7 @@ function switchView(view, btn) {
         root.style.setProperty('--total-cols', '53');
     } else {
         root.style.setProperty('--column-width', '180px');
-        root.style.setProperty('--total-cols', '12'); // Harde limit op 12 maanden
+        root.style.setProperty('--total-cols', '12');
     }
 
     buildHeaders();
@@ -128,7 +128,6 @@ function renderCampaigns() {
     filtered.forEach(item => {
         let start, end;
         if (currentView === 'month') {
-            // Verfijnde berekening: week 1-4 = jan, week 49-53 = dec
             start = Math.max(1, Math.min(12, Math.ceil(item.startWeek / 4.42)));
             end = Math.max(1, Math.min(12, Math.ceil(item.endWeek / 4.42)));
         } else if (currentView === 'day') {
@@ -258,6 +257,7 @@ function resetModal() {
     document.getElementById('taskDesc').value = '';
     document.getElementById('attachmentUrl').value = '';
     document.getElementById('deleteBtn').style.display = 'none';
+    document.getElementById('commentsList').innerHTML = '';
 }
 
 function closeModal() { document.getElementById('itemModal').style.display = 'none'; }
