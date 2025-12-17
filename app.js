@@ -51,7 +51,6 @@ function switchView(view, btn) {
         root.style.setProperty('--column-width', '180px');
         root.style.setProperty('--total-cols', '12');
     }
-
     buildHeaders();
     renderCampaigns();
 }
@@ -65,32 +64,27 @@ function buildHeaders() {
         monthHeader.style.display = 'none';
         monthStructure.forEach(m => {
             const el = document.createElement('div');
-            el.className = 'week-num';
-            el.innerText = m.name;
+            el.className = 'week-num'; el.innerText = m.name;
             weekHeader.appendChild(el);
         });
     } else if (currentView === 'week') {
         monthHeader.style.display = 'grid';
         monthStructure.forEach(m => {
             const el = document.createElement('div');
-            el.className = 'month-label';
-            el.innerText = m.name;
+            el.className = 'month-label'; el.innerText = m.name;
             el.style.gridColumn = `span ${m.weeks}`;
             monthHeader.appendChild(el);
         });
-        const curW = getISOWeek(new Date());
         for (let i = 1; i <= 53; i++) {
             const el = document.createElement('div');
-            el.className = 'week-num' + (i === curW ? ' current-week' : '');
-            el.innerText = 'W' + i;
+            el.className = 'week-num'; el.innerText = 'W' + i;
             weekHeader.appendChild(el);
         }
     } else if (currentView === 'day') {
         monthHeader.style.display = 'grid';
         monthStructure.forEach((m, mIdx) => {
             const el = document.createElement('div');
-            el.className = 'month-label';
-            el.innerText = m.name;
+            el.className = 'month-label'; el.innerText = m.name;
             el.style.gridColumn = `span ${m.days}`;
             monthHeader.appendChild(el);
             for (let d = 1; d <= m.days; d++) {
@@ -107,9 +101,9 @@ function buildHeaders() {
 
 function renderCampaigns() {
     const grid = document.getElementById('timelineGrid');
-    grid.innerHTML = '<div id="todayLine" class="today-line"></div>';
+    grid.innerHTML = '';
     
-    // Weekend kolommen
+    // Voeg weekend kolommen toe alleen als dagniveau (beperkte hoogte)
     if (currentView === 'day') {
         for (let i = 1; i <= 365; i++) {
             const date = new Date(2026, 0, i);
@@ -122,7 +116,6 @@ function renderCampaigns() {
         }
     }
 
-    updateTodayLine();
     const filtered = campaigns.filter(c => activeFilters.includes(c.department));
     const rows = [];
     
@@ -152,23 +145,6 @@ function renderCampaigns() {
         bar.onclick = () => openModal(item.id);
         grid.appendChild(bar);
     });
-}
-
-function updateTodayLine() {
-    const now = new Date();
-    if (now.getFullYear() !== 2026) return;
-    const line = document.getElementById('todayLine');
-    const colWidth = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--column-width'));
-    let pos = 0;
-    if (currentView === 'day') {
-        const diff = now - new Date(2026, 0, 1);
-        pos = Math.floor(diff / 86400000) * colWidth;
-    } else if (currentView === 'week') {
-        pos = (getISOWeek(now) - 1) * colWidth + ((now.getDay() || 7) - 1) * (colWidth / 7);
-    } else {
-        pos = now.getMonth() * colWidth + (now.getDate() / 31) * colWidth;
-    }
-    line.style.left = pos + 'px';
 }
 
 function listenToFirebase() {
@@ -228,7 +204,7 @@ function refreshCommentsOnly(itemId) {
     if(item && item.comments) {
         Object.keys(item.comments).forEach(key => {
             const c = item.comments[key];
-            list.innerHTML += `<div class="comment-item" style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:5px; border-bottom:1px solid #f0f0f0;"><span>${c.date}: ${c.text}</span><span style="color:#9ca3af; cursor:pointer;" onclick="deleteComment('${key}')">&times;</span></div>`;
+            list.innerHTML += `<div style="font-size:12px; margin-bottom:5px; border-bottom:1px solid #eee; display:flex; justify-content:space-between;"><span>${c.date}: ${c.text}</span><span style="cursor:pointer; color:red" onclick="deleteComment('${key}')">&times;</span></div>`;
         });
     }
 }
@@ -238,16 +214,14 @@ function deleteComment(key) {
     database.ref(`campaigns_2026/${id}/comments/${key}`).remove().then(() => refreshCommentsOnly(id));
 }
 
+function deleteItem() {
+    const id = document.getElementById('currentId').value;
+    if(confirm("Verwijderen?")) database.ref('campaigns_2026/' + id).remove().then(() => closeModal());
+}
+
 function openAttachment() {
     const url = document.getElementById('attachmentUrl').value;
     if(url) window.open(url, '_blank');
-}
-
-function deleteItem() {
-    const id = document.getElementById('currentId').value;
-    if(confirm("Item verwijderen?")) {
-        database.ref('campaigns_2026/' + id).remove().then(() => closeModal());
-    }
 }
 
 function resetModal() {

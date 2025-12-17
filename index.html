@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
     <div class="container">
         <header>
             <div class="header-content">
@@ -40,14 +39,12 @@
             <span class="close-modal" onclick="closeModal()">&times;</span>
             <h2 id="modalTitle">Item Bewerken</h2>
             <input type="hidden" id="currentId">
-            
             <div class="form-group">
-                <label for="taskName">Titel</label>
-                <input type="text" id="taskName" placeholder="Bijv. Black Friday Actie">
+                <label>Titel</label>
+                <input type="text" id="taskName">
             </div>
-
             <div class="form-group">
-                <label for="department">Afdeling</label>
+                <label>Afdeling</label>
                 <select id="department">
                     <option value="Logistiek">Logistiek</option>
                     <option value="Webshop">Webshop</option>
@@ -57,7 +54,6 @@
                     <option value="Winkels">Winkels</option>
                 </select>
             </div>
-
             <div class="input-row" style="display:flex; gap:10px;">
                 <div class="form-group" style="flex:1;">
                     <label>Start week</label>
@@ -68,31 +64,26 @@
                     <input type="number" id="endWeek" min="1" max="53">
                 </div>
             </div>
-
             <div class="form-group">
-                <label for="taskDesc">Beschrijving</label>
-                <textarea id="taskDesc" rows="2" placeholder="Extra informatie..."></textarea>
+                <label>Beschrijving</label>
+                <textarea id="taskDesc" rows="2"></textarea>
             </div>
-
             <div class="form-group">
-                <label for="attachmentUrl">Bijlage (URL)</label>
-                <div class="input-with-action" style="display:flex; gap:5px;">
+                <label>Bijlage (URL)</label>
+                <div style="display:flex; gap:5px;">
                     <input type="url" id="attachmentUrl" placeholder="https://...">
-                    <button id="openAttachBtn" type="button" class="btn-icon-link" onclick="openAttachment()">🔗</button>
+                    <button type="button" class="btn-icon-link" onclick="openAttachment()">🔗</button>
                 </div>
             </div>
-
             <hr class="modal-divider">
-
             <div class="form-group">
-                <label>Comments / Updates</label>
+                <label>Comments</label>
                 <div id="commentsList" class="comments-display"></div>
-                <div class="comment-input-group" style="display:flex; gap:5px; margin-top:10px;">
-                    <input type="text" id="newComment" placeholder="Typ een update...">
+                <div style="display:flex; gap:5px; margin-top:10px;">
+                    <input type="text" id="newComment" placeholder="Nieuwe update...">
                     <button type="button" onclick="addComment()" class="btn-comment">Post</button>
                 </div>
             </div>
-
             <div class="modal-buttons" style="display:flex; justify-content:space-between; margin-top:25px;">
                 <button id="deleteBtn" onclick="deleteItem()" class="btn-delete-item">Verwijderen</button>
                 <div style="display:flex; gap:10px;">
