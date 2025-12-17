@@ -44,8 +44,8 @@ function switchView(view, btn) {
     if (view === 'day') {
         root.style.setProperty('--column-width', '35px');
         root.style.setProperty('--total-cols', '365');
-        grid.style.maxHeight = '400px';
-        grid.style.overflowY = 'auto';
+        grid.style.maxHeight = '';
+        grid.style.overflowY = '';
     } else if (view === 'week') {
         root.style.setProperty('--column-width', '60px');
         root.style.setProperty('--total-cols', '53');
@@ -98,35 +98,14 @@ function buildHeaders() {
             el.className = 'month-label'; el.innerText = m.name;
             el.style.gridColumn = `span ${m.days}`;
             monthHeader.appendChild(el);
-
-            let currentWeek = getWeekNumber(new Date(2026, mIdx, 1));
-            let weekStart = 1;
             for (let d = 1; d <= m.days; d++) {
                 const date = new Date(2026, mIdx, d);
-                const week = getWeekNumber(date);
-                if (week !== currentWeek) {
-                    const span = d - weekStart;
-                    const wEl = document.createElement('div');
-                    wEl.className = 'week-num-label';
-                    wEl.innerText = 'W' + currentWeek;
-                    wEl.style.gridColumn = `span ${span}`;
-                    weekNumHeader.appendChild(wEl);
-                    currentWeek = week;
-                    weekStart = d;
-                }
                 const isWeekend = (date.getDay() === 0 || date.getDay() === 6);
                 const dEl = document.createElement('div');
                 dEl.className = 'week-num' + (isWeekend ? ' weekend' : '');
                 dEl.innerText = d;
                 weekHeader.appendChild(dEl);
             }
-            // Laatste week
-            const span = m.days - weekStart + 1;
-            const wEl = document.createElement('div');
-            wEl.className = 'week-num-label';
-            wEl.innerText = 'W' + currentWeek;
-            wEl.style.gridColumn = `span ${span}`;
-            weekNumHeader.appendChild(wEl);
         });
     }
 }
