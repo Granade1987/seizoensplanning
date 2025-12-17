@@ -36,22 +36,54 @@ header { display: flex; justify-content: space-between; align-items: center; mar
 .week-num.current-week { background-color: #fbbf24 !important; color: #000; }
 
 /* Weekend styling */
-.week-num.weekend { background-color: #e5e7eb; color: #9ca3af; }
-.weekend-col { background-color: rgba(229, 231, 235, 0.3); grid-row: 1 / -1; pointer-events: none; border-right: 1px solid var(--border-color); }
+.week-num.weekend { background-color: #e2e8f0; color: #64748b; }
+.weekend-col { 
+    background-color: rgba(226, 232, 240, 0.4); 
+    grid-row: 1 / 100; /* Loopt nu ver door naar beneden */
+    pointer-events: none; 
+    z-index: 1;
+    border-right: 1px solid var(--border-color);
+}
 
-.timeline-grid { min-height: 500px; grid-auto-rows: 55px; padding: 10px 0; position: relative; background-image: linear-gradient(to right, var(--border-color) 1px, transparent 1px); background-size: var(--column-width) 100%; }
+.timeline-grid { 
+    min-height: 600px; 
+    grid-auto-rows: 55px; 
+    padding: 0; 
+    position: relative; 
+    background-image: linear-gradient(to right, var(--border-color) 1px, transparent 1px); 
+    background-size: var(--column-width) 100%; 
+}
+
 .today-line { position: absolute; top: 0; bottom: 0; width: 2px; background-color: var(--danger); z-index: 50; pointer-events: none; }
-.task-bar { color: white; border-radius: 6px; margin: 4px; padding: 8px; font-size: 11px; font-weight: 700; cursor: pointer; border-left: 4px solid rgba(0,0,0,0.2); display: flex; justify-content: space-between; align-items: center; white-space: nowrap; overflow: hidden; z-index: 10; }
 
+.task-bar { 
+    color: white; 
+    border-radius: 6px; 
+    margin: 6px 4px; 
+    padding: 8px; 
+    font-size: 11px; 
+    font-weight: 700; 
+    cursor: pointer; 
+    border-left: 4px solid rgba(0,0,0,0.2); 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    white-space: nowrap; 
+    overflow: hidden; 
+    z-index: 10; /* Ligt boven de weekend-kolommen */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Modal styling */
 .modal { display: none; position: fixed; z-index: 2000; inset: 0; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; }
 .modal-content { background: white; padding: 30px; border-radius: 15px; width: 450px; max-height: 90vh; overflow-y: auto; position: relative; }
 .form-group { margin-bottom: 15px; }
 .form-group label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 13px; }
 input, textarea, select { width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; }
 .input-with-action { display: flex; gap: 5px; }
-.btn-icon { background: #f3f4f6; border: 1px solid #d1d5db; cursor: pointer; border-radius: 6px; }
+.btn-icon { background: #f3f4f6; border: 1px solid #d1d5db; cursor: pointer; border-radius: 6px; padding: 5px 10px; }
 .modal-divider { border: 0; border-top: 1px solid #eee; margin: 15px 0; }
-.comments-display { max-height: 100px; overflow-y: auto; background: #f9fafb; padding: 10px; border-radius: 8px; border: 1px solid #eee; margin-bottom: 10px; }
+.comments-display { max-height: 120px; overflow-y: auto; background: #f9fafb; padding: 10px; border-radius: 8px; border: 1px solid #eee; margin-bottom: 10px; }
 .comment-item { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 5px; border-bottom: 1px solid #f0f0f0; padding-bottom: 3px; }
 .delete-comment { color: #9ca3af; cursor: pointer; font-size: 16px; }
 .comment-input-group { display: flex; gap: 5px; }

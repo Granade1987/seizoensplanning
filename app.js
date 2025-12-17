@@ -30,7 +30,7 @@ const monthStructure = [
 ];
 
 document.addEventListener('DOMContentLoaded', () => {
-    switchView('week', document.querySelector('.btn-view.active'));
+    switchView('week', document.querySelector('.btn-view[onclick*="week"]'));
     createLegend();
     listenToFirebase();
 });
@@ -99,7 +99,6 @@ function buildHeaders() {
             for (let d = 1; d <= m.days; d++) {
                 const date = new Date(2026, mIndex, d);
                 const isWeekend = (date.getDay() === 0 || date.getDay() === 6);
-                
                 const dEl = document.createElement('div');
                 dEl.className = 'week-num' + (isWeekend ? ' weekend' : '');
                 dEl.innerText = d;
@@ -115,7 +114,7 @@ function renderCampaigns() {
     const grid = document.getElementById('timelineGrid');
     grid.innerHTML = '<div id="todayLine" class="today-line"></div>';
     
-    // Voeg weekend kolommen toe in dagweergave
+    // Weekend kolommen toevoegen (alleen in dag-weergave)
     if (currentView === 'day') {
         for (let i = 1; i <= 365; i++) {
             const date = new Date(2026, 0, i);
@@ -136,8 +135,9 @@ function renderCampaigns() {
     filtered.forEach(item => {
         let start, end;
         if (currentView === 'month') {
-            start = Math.floor(item.startWeek / 4.4) + 1;
-            end = Math.floor(item.endWeek / 4.4) + 1;
+            // Correctie voor maandweergave zodat december (maand 12) niet buiten de 12 kolommen valt
+            start = Math.max(1, Math.min(12, Math.floor(item.startWeek / 4.42) + 1));
+            end = Math.max(1, Math.min(12, Math.floor(item.endWeek / 4.42) + 1));
         } else if (currentView === 'day') {
             start = (item.startWeek * 7) - 6;
             end = item.endWeek * 7;
@@ -152,7 +152,7 @@ function renderCampaigns() {
 
         const bar = document.createElement('div');
         bar.className = 'task-bar';
-        bar.innerHTML = `<span>${item.title}</span> ${item.attachmentUrl ? '📎' : ''}`;
+        bar.innerHTML = `<span>${item.title}</span> ${item.attachmentUrl ? '🔗' : ''}`;
         bar.style.backgroundColor = item.color;
         bar.style.gridColumn = `${start} / span ${(end - start) + 1}`;
         bar.style.gridRow = rowIndex + 1;
@@ -173,7 +173,7 @@ function updateTodayLine() {
     if (currentView === 'day') {
         const yearStart = new Date(2026, 0, 1);
         const diff = now - yearStart;
-        const dayOfYear = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const dayOfYear = Math.floor(diff / 86400000);
         pos = dayOfYear * colWidth;
     } else if (currentView === 'week') {
         const w = getISOWeek(now);
@@ -189,10 +189,10 @@ function scrollToToday() {
     setTimeout(() => {
         const line = document.getElementById('todayLine');
         if(line) wrapper.scrollLeft = line.offsetLeft - 100;
-    }, 100);
+    }, 150);
 }
 
-// REST VAN DE FUNCTIES (Firebase, Modal, etc.)
+// Firebase & Modal Logica
 function listenToFirebase() {
     database.ref('campaigns_2026').on('value', (s) => {
         campaigns = s.val() ? Object.values(s.val()) : [];
@@ -277,8 +277,12 @@ function deleteItem() {
 function resetModal() {
     document.getElementById('currentId').value = '';
     document.getElementById('taskName').value = '';
+    document.getElementById('taskDesc').value = '';
     document.getElementById('attachmentUrl').value = '';
+    document.getElementById('startWeek').value = '';
+    document.getElementById('endWeek').value = '';
     document.getElementById('deleteBtn').style.display = 'none';
+    document.getElementById('commentsList').innerHTML = '';
 }
 
 function closeModal() { document.getElementById('itemModal').style.display = 'none'; }
