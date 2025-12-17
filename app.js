@@ -1,4 +1,5 @@
 let campaigns = [];
+let activeFilters = ['Logistiek', 'Webshop', 'MJFM', 'Outlet', 'Marketing', 'Winkels'];
 
 const departments = {
     'Logistiek': '#f59e0b',
@@ -27,8 +28,6 @@ document.addEventListener('DOMContentLoaded', () => {
 function initTimelineHeaders() {
     const monthHeader = document.getElementById('monthHeader');
     const weekHeader = document.getElementById('weekHeader');
-
-    // Maanden genereren
     months.forEach(m => {
         const div = document.createElement('div');
         div.className = 'month-label';
@@ -36,8 +35,6 @@ function initTimelineHeaders() {
         div.style.gridColumn = `span ${m.weeks}`;
         monthHeader.appendChild(div);
     });
-
-    // Weken genereren (1-52)
     for (let i = 1; i <= 52; i++) {
         const div = document.createElement('div');
         div.className = 'week-num';
@@ -48,12 +45,53 @@ function initTimelineHeaders() {
 
 function createLegend() {
     const legendEl = document.getElementById('legend');
+    legendEl.innerHTML = '';
     for (const [dept, color] of Object.entries(departments)) {
         const item = document.createElement('div');
-        item.className = 'legend-item';
+        const isActive = activeFilters.includes(dept);
+        item.className = `legend-item ${isActive ? 'active' : 'inactive'}`;
         item.innerHTML = `<div class="legend-color" style="background:${color}"></div>${dept}`;
+        
+        item.onclick = () => toggleFilter(dept);
         legendEl.appendChild(item);
     }
+}
+
+function toggleFilter(dept) {
+    if (activeFilters.includes(dept)) {
+        // Als het de laatste actieve is, doe niets (of optioneel: reset naar alles)
+        activeFilters = activeFilters.filter(f => f !== dept);
+    } else {
+        activeFilters.push(dept);
+    }
+    
+    // Als alles uit staat, zet dan alles weer aan (voor gebruiksgemak)
+    if (activeFilters.length === 0) {
+        activeFilters = Object.keys(departments);
+    }
+
+    createLegend();
+    renderCampaigns();
+}
+
+function renderCampaigns() {
+    const grid = document.getElementById('timelineGrid');
+    grid.innerHTML = '';
+    
+    // Filteren op basis van geselecteerde afdelingen
+    const filtered = campaigns.filter(c => activeFilters.includes(c.department));
+    filtered.sort((a, b) => a.startWeek - b.startWeek);
+
+    filtered.forEach(item => {
+        const span = (item.endWeek - item.startWeek) + 1;
+        const bar = document.createElement('div');
+        bar.className = 'task-bar';
+        bar.innerText = item.title;
+        bar.style.backgroundColor = item.color;
+        bar.style.gridColumn = `${item.startWeek} / span ${span}`;
+        bar.onclick = () => openModal(item.id);
+        grid.appendChild(bar);
+    });
 }
 
 function openModal(editId = null) {
@@ -86,8 +124,7 @@ function saveTask() {
     const end = parseInt(document.getElementById('endWeek').value);
 
     if (!title || !start || !end || start > end) {
-        alert("Vul alle velden correct in.");
-        return;
+        alert("Controleer invoer."); return;
     }
 
     const taskObj = { title, department: dept, description: desc, startWeek: start, endWeek: end, color: departments[dept] };
@@ -105,37 +142,20 @@ function saveTask() {
 
 function deleteItem() {
     const id = document.getElementById('currentId').value;
-    if (confirm("Item verwijderen?")) {
+    if (confirm("Verwijderen?")) {
         campaigns = campaigns.filter(c => c.id != id);
         saveAndRender();
         closeModal();
     }
 }
 
-function renderCampaigns() {
-    const grid = document.getElementById('timelineGrid');
-    grid.innerHTML = '';
-    campaigns.sort((a, b) => a.startWeek - b.startWeek);
-
-    campaigns.forEach(item => {
-        const span = (item.endWeek - item.startWeek) + 1;
-        const bar = document.createElement('div');
-        bar.className = 'task-bar';
-        bar.innerText = item.title;
-        bar.style.backgroundColor = item.color;
-        bar.style.gridColumn = `${item.startWeek} / span ${span}`;
-        bar.onclick = () => openModal(item.id);
-        grid.appendChild(bar);
-    });
-}
-
 function saveAndRender() {
-    localStorage.setItem('marketingPlanner_v3', JSON.stringify(campaigns));
+    localStorage.setItem('marketingPlanner_v4', JSON.stringify(campaigns));
     renderCampaigns();
 }
 
 function loadData() {
-    const data = localStorage.getItem('marketingPlanner_v3');
+    const data = localStorage.getItem('marketingPlanner_v4');
     if (data) {
         campaigns = JSON.parse(data);
         renderCampaigns();
