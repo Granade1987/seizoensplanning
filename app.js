@@ -88,20 +88,24 @@ function buildHeaders() {
         }
     } else if (currentView === 'day') {
         monthHeader.style.display = 'grid';
-        monthStructure.forEach(m => {
+        let dayOfYear = 1;
+        monthStructure.forEach((m, mIndex) => {
             const el = document.createElement('div');
             el.className = 'month-label';
             el.innerText = m.name;
             el.style.gridColumn = `span ${m.days}`;
             monthHeader.appendChild(el);
             
-            // Dagen van de maand toevoegen onder de maandnaam
             for (let d = 1; d <= m.days; d++) {
+                const date = new Date(2026, mIndex, d);
+                const isWeekend = (date.getDay() === 0 || date.getDay() === 6);
+                
                 const dEl = document.createElement('div');
-                dEl.className = 'week-num';
+                dEl.className = 'week-num' + (isWeekend ? ' weekend' : '');
                 dEl.innerText = d;
                 dEl.style.fontSize = '8px';
                 weekHeader.appendChild(dEl);
+                dayOfYear++;
             }
         });
     }
@@ -110,6 +114,20 @@ function buildHeaders() {
 function renderCampaigns() {
     const grid = document.getElementById('timelineGrid');
     grid.innerHTML = '<div id="todayLine" class="today-line"></div>';
+    
+    // Voeg weekend kolommen toe in dagweergave
+    if (currentView === 'day') {
+        for (let i = 1; i <= 365; i++) {
+            const date = new Date(2026, 0, i);
+            if (date.getDay() === 0 || date.getDay() === 6) {
+                const col = document.createElement('div');
+                col.className = 'weekend-col';
+                col.style.gridColumn = i;
+                grid.appendChild(col);
+            }
+        }
+    }
+
     updateTodayLine();
     
     const filtered = campaigns.filter(c => activeFilters.includes(c.department));
@@ -121,8 +139,6 @@ function renderCampaigns() {
             start = Math.floor(item.startWeek / 4.4) + 1;
             end = Math.floor(item.endWeek / 4.4) + 1;
         } else if (currentView === 'day') {
-            // ISO week 1 van 2026 begint op 29 dec 2025, maar we rekenen vanaf 1 jan
-            // Een simpele benadering: week * 7 minus offset
             start = (item.startWeek * 7) - 6;
             end = item.endWeek * 7;
         } else {
@@ -176,6 +192,7 @@ function scrollToToday() {
     }, 100);
 }
 
+// REST VAN DE FUNCTIES (Firebase, Modal, etc.)
 function listenToFirebase() {
     database.ref('campaigns_2026').on('value', (s) => {
         campaigns = s.val() ? Object.values(s.val()) : [];
