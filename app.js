@@ -127,6 +127,7 @@ function renderCampaigns() {
     const rows = [];
     
     filtered.forEach(item => {
+        if (!item.startDate || !item.endDate) return; // Skip oude data zonder datums
         let start, end;
         const startDate = new Date(item.startDate);
         const endDate = new Date(item.endDate);
@@ -195,7 +196,12 @@ function saveTask() {
         color: departments[document.getElementById('department').value]
     };
     if(!data.title) return alert("Vul titel in.");
-    database.ref('campaigns_2026/' + id).update(data).then(() => closeModal());
+    database.ref('campaigns_2026/' + id).update(data).then(() => {
+        alert("Opgeslagen!");
+        closeModal();
+    }).catch(err => {
+        alert("Fout bij opslaan: " + err.message);
+    });
 }
 
 function addComment() {
