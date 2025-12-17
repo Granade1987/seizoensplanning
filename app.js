@@ -10,7 +10,6 @@ const departments = {
     'Winkels': '#6366f1'
 };
 
-// Exacte verdeling van weken over maanden voor 2025
 const monthStructure = [
     { name: 'Januari', weeks: 4 }, { name: 'Februari', weeks: 4 },
     { name: 'Maart', weeks: 5 }, { name: 'April', weeks: 4 },
@@ -29,9 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
 function buildHeaders() {
     const monthHeader = document.getElementById('monthHeader');
     const weekHeader = document.getElementById('weekHeader');
-
-    monthHeader.innerHTML = '';
-    weekHeader.innerHTML = '';
+    monthHeader.innerHTML = ''; weekHeader.innerHTML = '';
 
     monthStructure.forEach(m => {
         const el = document.createElement('div');
@@ -74,22 +71,15 @@ function createLegend() {
 function renderCampaigns() {
     const grid = document.getElementById('timelineGrid');
     grid.innerHTML = '';
-    
     const filtered = campaigns.filter(c => activeFilters.includes(c.department));
-    
-    // Groepeer items op rijen zodat ze niet over elkaar heen vallen
     const rows = [];
+    
     filtered.sort((a, b) => a.startWeek - b.startWeek).forEach(item => {
         let rowIndex = rows.findIndex(row => row.every(placed => 
             item.endWeek < placed.startWeek || item.startWeek > placed.endWeek
         ));
-        
-        if (rowIndex === -1) {
-            rows.push([item]);
-            rowIndex = rows.length - 1;
-        } else {
-            rows[rowIndex].push(item);
-        }
+        if (rowIndex === -1) { rows.push([item]); rowIndex = rows.length - 1; } 
+        else { rows[rowIndex].push(item); }
 
         const span = (item.endWeek - item.startWeek) + 1;
         const bar = document.createElement('div');
@@ -121,6 +111,8 @@ function openModal(editId = null) {
         document.getElementById('currentId').value = '';
         document.getElementById('taskName').value = '';
         document.getElementById('taskDesc').value = '';
+        document.getElementById('startWeek').value = '';
+        document.getElementById('endWeek').value = '';
         document.getElementById('deleteBtn').style.display = 'none';
     }
 }
@@ -133,18 +125,15 @@ function saveTask() {
     const dept = document.getElementById('department').value;
     const start = parseInt(document.getElementById('startWeek').value);
     const end = parseInt(document.getElementById('endWeek').value);
-
     if (!title || !start || !end || start > end) return alert("Controleer de velden.");
 
     const data = { title, department: dept, description: document.getElementById('taskDesc').value, startWeek: start, endWeek: end, color: departments[dept] };
-
     if (id) {
         const i = campaigns.findIndex(c => c.id == id);
         campaigns[i] = { ...campaigns[i], ...data };
     } else {
         campaigns.push({ id: Date.now(), ...data });
     }
-
     localStorage.setItem('plannerData_final', JSON.stringify(campaigns));
     renderCampaigns();
     closeModal();
@@ -162,10 +151,7 @@ function deleteItem() {
 
 function loadData() {
     const data = localStorage.getItem('plannerData_final');
-    if (data) {
-        campaigns = JSON.parse(data);
-        renderCampaigns();
-    }
+    if (data) { campaigns = JSON.parse(data); renderCampaigns(); }
 }
 
 window.onclick = (e) => { if (e.target.className === 'modal') closeModal(); };

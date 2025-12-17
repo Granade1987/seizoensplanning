@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Marketing Jaarplanning 2026</title>
+    <title>Marketing Jaarplanning 2025</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -12,6 +12,7 @@
         <header>
             <div class="header-content">
                 <h1>Marketing Jaarplanning 2026</h1>
+                <p>Klik op de afdelingen om te filteren. Klik op een item om te bewerken.</p>
             </div>
             <div class="actions">
                 <button class="btn-main" onclick="openModal()">+ Nieuw Item</button>
@@ -25,7 +26,6 @@
                 <div class="timeline-months" id="monthHeader"></div>
                 <div class="timeline-weeks" id="weekHeader"></div>
             </div>
-            
             <div class="timeline-grid" id="timelineGrid"></div>
         </div>
     </div>
@@ -56,10 +56,10 @@
 
             <div class="form-group">
                 <label for="taskDesc">Beschrijving</label>
-                <textarea id="taskDesc" rows="3"></textarea>
+                <textarea id="taskDesc" rows="3" placeholder="Extra informatie..."></textarea>
             </div>
             
-            <div class="input-row">
+            <div class="input-row spacer-y">
                 <div class="form-group">
                     <label>Start week</label>
                     <input type="number" id="startWeek" min="1" max="52">
