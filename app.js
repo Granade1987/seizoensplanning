@@ -167,6 +167,10 @@ function listenToFirebase() {
 function openModal(id = null) {
     document.getElementById('itemModal').style.display = 'flex';
     resetModal();
+    document.getElementById('startDate').min = '2026-01-01';
+    document.getElementById('startDate').max = '2026-12-31';
+    document.getElementById('endDate').min = '2026-01-01';
+    document.getElementById('endDate').max = '2026-12-31';
     if (id) {
         const item = campaigns.find(c => c.id == id);
         document.getElementById('currentId').value = item.id;
