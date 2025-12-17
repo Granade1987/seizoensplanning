@@ -41,15 +41,22 @@ function switchView(view, btn) {
     if(btn) btn.classList.add('active');
     
     const root = document.documentElement;
+    const grid = document.getElementById('timelineGrid');
     if (view === 'day') {
         root.style.setProperty('--column-width', '35px');
         root.style.setProperty('--total-cols', '365');
+        grid.style.maxHeight = '400px';
+        grid.style.overflowY = 'auto';
     } else if (view === 'week') {
         root.style.setProperty('--column-width', '60px');
         root.style.setProperty('--total-cols', '53');
+        grid.style.maxHeight = '';
+        grid.style.overflowY = '';
     } else {
         root.style.setProperty('--column-width', '180px');
         root.style.setProperty('--total-cols', '12');
+        grid.style.maxHeight = '';
+        grid.style.overflowY = '';
     }
     buildHeaders();
     renderCampaigns();
