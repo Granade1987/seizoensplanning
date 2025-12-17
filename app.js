@@ -69,7 +69,6 @@ function listenToFirebase() {
         campaigns = data ? Object.values(data) : [];
         renderCampaigns();
         
-        // Ververs modal als deze open staat om de nieuwe comments direct te tonen
         const openId = document.getElementById('currentId').value;
         if (openId && document.getElementById('itemModal').style.display === 'flex') {
             refreshCommentsOnly(openId);
@@ -81,18 +80,24 @@ function renderCampaigns() {
     const grid = document.getElementById('timelineGrid');
     grid.innerHTML = '<div id="todayLine" class="today-line"></div>';
     updateTodayLine();
+    
     const filtered = campaigns.filter(c => activeFilters.includes(c.department));
     const rows = [];
+    
     filtered.sort((a, b) => a.startWeek - b.startWeek).forEach(item => {
         let rowIndex = rows.findIndex(row => row.every(placed => 
             item.endWeek < placed.startWeek || item.startWeek > placed.endWeek
         ));
         if (rowIndex === -1) { rows.push([item]); rowIndex = rows.length - 1; } 
         else { rows[rowIndex].push(item); }
+
         const span = (item.endWeek - item.startWeek) + 1;
         const bar = document.createElement('div');
         bar.className = 'task-bar';
-        bar.innerText = item.title;
+        
+        let attachIcon = item.attachmentUrl ? '📎' : '';
+        bar.innerHTML = `<span>${item.title}</span><span style="font-size:10px">${attachIcon}</span>`;
+        
         bar.style.backgroundColor = item.color;
         bar.style.gridColumn = `${item.startWeek} / span ${span}`;
         bar.style.gridRow = rowIndex + 1;
@@ -123,32 +128,30 @@ function openModal(editId = null) {
         document.getElementById('taskName').value = item.title;
         document.getElementById('department').value = item.department;
         document.getElementById('taskDesc').value = item.description || '';
+        document.getElementById('attachmentUrl').value = item.attachmentUrl || '';
         document.getElementById('startWeek').value = item.startWeek;
         document.getElementById('endWeek').value = item.endWeek;
         
+        document.getElementById('openAttachBtn').style.display = item.attachmentUrl ? 'block' : 'none';
         refreshCommentsOnly(editId);
         document.getElementById('deleteBtn').style.display = 'block';
     } else {
         document.getElementById('modalTitle').innerText = "Nieuw Item";
+        document.getElementById('openAttachBtn').style.display = 'none';
     }
 }
 
-// Functie om alleen de lijst met comments te verversen
 function refreshCommentsOnly(itemId) {
     const item = campaigns.find(c => c.id == itemId);
     const commentsList = document.getElementById('commentsList');
     commentsList.innerHTML = '';
-    
     if (item && item.comments) {
-        // Firebase slaat ze op als object, we halen de unieke keys op
         Object.keys(item.comments).forEach(key => {
             const c = item.comments[key];
             const div = document.createElement('div');
             div.className = 'comment-item';
             div.innerHTML = `
-                <div class="comment-text-wrapper">
-                    <span class="comment-date">${c.date}</span> ${c.text}
-                </div>
+                <div style="flex:1"><span style="font-size:10px; color:gray; font-weight:bold">${c.date}</span><br>${c.text}</div>
                 <span class="delete-comment" onclick="deleteComment('${key}')">&times;</span>
             `;
             commentsList.appendChild(div);
@@ -159,40 +162,42 @@ function refreshCommentsOnly(itemId) {
 function addComment() {
     const id = document.getElementById('currentId').value;
     const text = document.getElementById('newComment').value;
-    if (!id) return alert("Sla het item eerst op.");
-    if (!text) return;
+    if (!id || !text) return;
 
     const commentData = {
         text: text,
         date: new Date().toLocaleDateString('nl-NL', {day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit'})
     };
-
     database.ref(`campaigns_2026/${id}/comments`).push(commentData);
     document.getElementById('newComment').value = '';
 }
 
-// NIEUWE FUNCTIE: Wissen van een comment
 function deleteComment(commentKey) {
     const itemId = document.getElementById('currentId').value;
-    if (confirm("Wil je deze update verwijderen?")) {
+    if (confirm("Update verwijderen?")) {
         database.ref(`campaigns_2026/${itemId}/comments/${commentKey}`).remove();
     }
+}
+
+function openAttachment() {
+    const url = document.getElementById('attachmentUrl').value;
+    if (url) window.open(url, '_blank');
 }
 
 function saveTask() {
     const idValue = document.getElementById('currentId').value;
     const id = idValue ? idValue : Date.now().toString();
     const title = document.getElementById('taskName').value;
-    const dept = document.getElementById('department').value;
     const start = parseInt(document.getElementById('startWeek').value);
     const end = parseInt(document.getElementById('endWeek').value);
 
-    if (!title || isNaN(start) || isNaN(end) || start > end) return alert("Check de velden.");
+    if (!title || isNaN(start)) return alert("Check titel en startweek.");
 
     database.ref('campaigns_2026/' + id).update({
-        id: id, title: title, department: dept,
+        id: id, title: title, department: document.getElementById('department').value,
         description: document.getElementById('taskDesc').value,
-        startWeek: start, endWeek: end, color: departments[dept]
+        attachmentUrl: document.getElementById('attachmentUrl').value,
+        startWeek: start, endWeek: end, color: departments[document.getElementById('department').value]
     });
     closeModal();
 }
@@ -201,6 +206,7 @@ function resetModal() {
     document.getElementById('currentId').value = '';
     document.getElementById('taskName').value = '';
     document.getElementById('taskDesc').value = '';
+    document.getElementById('attachmentUrl').value = '';
     document.getElementById('startWeek').value = '';
     document.getElementById('endWeek').value = '';
     document.getElementById('deleteBtn').style.display = 'none';
@@ -211,7 +217,7 @@ function closeModal() { document.getElementById('itemModal').style.display = 'no
 
 function deleteItem() {
     const id = document.getElementById('currentId').value;
-    if (id && confirm("Wil je dit item definitief verwijderen?")) {
+    if (id && confirm("Item definitief verwijderen?")) {
         database.ref('campaigns_2026/' + id).remove();
         closeModal();
     }
@@ -225,8 +231,7 @@ function createLegend() {
         item.className = `legend-item ${activeFilters.includes(dept) ? 'active' : 'inactive'}`;
         item.innerHTML = `<div class="legend-color" style="background:${departments[dept]}"></div>${dept}`;
         item.onclick = () => {
-            if (activeFilters.includes(dept)) activeFilters = activeFilters.filter(f => f !== dept);
-            else activeFilters.push(dept);
+            activeFilters.includes(dept) ? activeFilters = activeFilters.filter(f => f !== dept) : activeFilters.push(dept);
             if (activeFilters.length === 0) activeFilters = Object.keys(departments);
             createLegend(); renderCampaigns();
         };
