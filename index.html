@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Marketing Jaarplanning Tool</title>
+    <title>Marketing Jaarplanning 2025</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -12,7 +12,7 @@
         <header>
             <div class="header-content">
                 <h1>Marketing Jaarplanning 2026</h1>
-                <p>Klik op een item om het aan te passen of te verwijderen.</p>
+                <p>Beheer campagnes per afdeling op week- en maandniveau.</p>
             </div>
             <div class="actions">
                 <button class="btn-main" onclick="openModal()">+ Nieuw Item</button>
@@ -22,7 +22,9 @@
         <div class="legend" id="legend"></div>
 
         <div class="timeline-wrapper">
+            <div class="timeline-months" id="monthHeader"></div>
             <div class="timeline-weeks" id="weekHeader"></div>
+            
             <div class="timeline-grid" id="timelineGrid"></div>
         </div>
     </div>
@@ -36,7 +38,7 @@
             
             <div class="form-group">
                 <label for="taskName">Titel</label>
-                <input type="text" id="taskName" placeholder="Naam van de campagne">
+                <input type="text" id="taskName" placeholder="Bijv. Zomeruitverkoop">
             </div>
 
             <div class="form-group">
@@ -53,7 +55,7 @@
 
             <div class="form-group">
                 <label for="taskDesc">Beschrijving</label>
-                <textarea id="taskDesc" rows="3" placeholder="Details..."></textarea>
+                <textarea id="taskDesc" rows="3" placeholder="Details van de planning..."></textarea>
             </div>
             
             <div class="input-row">
