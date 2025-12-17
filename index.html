@@ -40,10 +40,12 @@
             <span class="close-modal" onclick="closeModal()">&times;</span>
             <h2 id="modalTitle">Item Bewerken</h2>
             <input type="hidden" id="currentId">
+            
             <div class="form-group">
                 <label for="taskName">Titel</label>
-                <input type="text" id="taskName">
+                <input type="text" id="taskName" placeholder="Bijv. Black Friday Actie">
             </div>
+
             <div class="form-group">
                 <label for="department">Afdeling</label>
                 <select id="department">
@@ -55,39 +57,45 @@
                     <option value="Winkels">Winkels</option>
                 </select>
             </div>
-            <div class="input-row">
-                <div class="form-group">
+
+            <div class="input-row" style="display:flex; gap:10px;">
+                <div class="form-group" style="flex:1;">
                     <label>Start week</label>
                     <input type="number" id="startWeek" min="1" max="53">
                 </div>
-                <div class="form-group">
+                <div class="form-group" style="flex:1;">
                     <label>Eind week</label>
                     <input type="number" id="endWeek" min="1" max="53">
                 </div>
             </div>
+
             <div class="form-group">
                 <label for="taskDesc">Beschrijving</label>
-                <textarea id="taskDesc" rows="2"></textarea>
+                <textarea id="taskDesc" rows="2" placeholder="Extra informatie..."></textarea>
             </div>
+
             <div class="form-group">
                 <label for="attachmentUrl">Bijlage (URL)</label>
-                <div class="input-with-action">
+                <div class="input-with-action" style="display:flex; gap:5px;">
                     <input type="url" id="attachmentUrl" placeholder="https://...">
-                    <button id="openAttachBtn" type="button" class="btn-icon" onclick="openAttachment()">🔗</button>
+                    <button id="openAttachBtn" type="button" class="btn-icon-link" onclick="openAttachment()">🔗</button>
                 </div>
             </div>
+
             <hr class="modal-divider">
+
             <div class="form-group">
                 <label>Comments / Updates</label>
                 <div id="commentsList" class="comments-display"></div>
-                <div class="comment-input-group">
+                <div class="comment-input-group" style="display:flex; gap:5px; margin-top:10px;">
                     <input type="text" id="newComment" placeholder="Typ een update...">
                     <button type="button" onclick="addComment()" class="btn-comment">Post</button>
                 </div>
             </div>
-            <div class="modal-buttons">
+
+            <div class="modal-buttons" style="display:flex; justify-content:space-between; margin-top:25px;">
                 <button id="deleteBtn" onclick="deleteItem()" class="btn-delete-item">Verwijderen</button>
-                <div class="right-buttons">
+                <div style="display:flex; gap:10px;">
                     <button type="button" onclick="closeModal()" class="btn-cancel">Annuleren</button>
                     <button type="button" onclick="saveTask()" class="btn-save">Opslaan</button>
                 </div>

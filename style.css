@@ -13,7 +13,7 @@ body { font-family: 'Inter', sans-serif; background: var(--bg-main); margin: 0; 
 header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
 
 .view-switcher { display: flex; background: #e5e7eb; padding: 4px; border-radius: 10px; }
-.btn-view { padding: 8px 16px; border: none; background: transparent; cursor: pointer; font-weight: 600; border-radius: 8px; font-size: 13px; transition: 0.2s; }
+.btn-view { padding: 8px 16px; border: none; background: transparent; cursor: pointer; font-weight: 600; border-radius: 8px; font-size: 13px; }
 .btn-view.active { background: white; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
 
 .legend { display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; background: white; padding: 15px; border-radius: 12px; border: 1px solid var(--border-color); }
@@ -37,24 +37,24 @@ header { display: flex; justify-content: space-between; align-items: center; mar
 .week-num { font-size: 10px; font-weight: 700; color: #6b7280; background: #f3f4f6; }
 .week-num.current-week { background-color: #fbbf24 !important; color: #000; }
 
-/* Weekend styling */
+/* Weekend & Grid Fix */
 .week-num.weekend { background-color: #e2e8f0; color: #64748b; }
 .weekend-col { 
     background-color: rgba(226, 232, 240, 0.4); 
-    grid-row: 1 / 500; /* Loopt door maar stopt bij de padding-bottom van de container */
     pointer-events: none; 
     border-right: 1px solid var(--border-color);
     z-index: 1;
+    grid-row: 1 / 100; /* Loopt diep, maar align-content kapt het af */
 }
 
 .timeline-grid { 
-    min-height: 400px; 
+    min-height: 300px; 
     grid-auto-rows: 55px; 
     position: relative; 
     background-image: linear-gradient(to right, var(--border-color) 1px, transparent 1px); 
     background-size: var(--column-width) 100%; 
-    padding-bottom: 100px; /* De marge aan de onderkant */
-    align-content: start; /* Zorgt dat het grid niet verticaal oprekt */
+    padding-bottom: 50px;
+    align-content: start; /* Dwingt rijen om bovenaan te blijven, voorkomt onnodige diepte */
 }
 
 .today-line { position: absolute; top: 0; bottom: 0; width: 2px; background-color: var(--danger); z-index: 50; pointer-events: none; }
@@ -65,16 +65,18 @@ header { display: flex; justify-content: space-between; align-items: center; mar
     align-items: center; white-space: nowrap; overflow: hidden; z-index: 10; box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-/* Modal */
+/* Modal Knoppen Styling */
 .modal { display: none; position: fixed; z-index: 2000; inset: 0; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; }
 .modal-content { background: white; padding: 30px; border-radius: 15px; width: 450px; max-height: 90vh; overflow-y: auto; position: relative; }
-input, textarea, select { width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; margin-top: 5px; }
-.form-group { margin-bottom: 15px; }
-.modal-divider { border: 0; border-top: 1px solid #eee; margin: 15px 0; }
-.comments-display { max-height: 120px; overflow-y: auto; background: #f9fafb; padding: 10px; border-radius: 8px; border: 1px solid #eee; margin-bottom: 10px; }
-.btn-comment { background: var(--primary); color: white; border: none; border-radius: 6px; padding: 0 15px; cursor: pointer; }
-.modal-buttons { display: flex; justify-content: space-between; margin-top: 20px; }
-.btn-save { background: var(--success); color: white; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-weight: 600; }
-.btn-cancel { background: #f3f4f6; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; }
-.btn-delete-item { background: #fee2e2; color: var(--danger); border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; }
+
+.btn-save { background: var(--success); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; }
+.btn-cancel { background: #f3f4f6; color: #374151; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; }
+.btn-delete-item { background: #fee2e2; color: var(--danger); border: none; padding: 10px 15px; border-radius: 8px; cursor: pointer; font-weight: 600; }
+.btn-comment { background: var(--primary); color: white; border: none; padding: 0 15px; border-radius: 8px; cursor: pointer; font-weight: 600; }
+.btn-icon-link { background: #f3f4f6; border: 1px solid var(--border-color); padding: 5px 12px; border-radius: 8px; cursor: pointer; }
+
+.modal-content input, .modal-content textarea, .modal-content select {
+    width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 14px; margin-top: 5px; box-sizing: border-box;
+}
+.modal-content label { font-size: 13px; font-weight: 600; color: #374151; }
 .close-modal { position: absolute; right: 15px; top: 10px; font-size: 24px; cursor: pointer; color: #9ca3af; }

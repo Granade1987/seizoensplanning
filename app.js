@@ -109,6 +109,7 @@ function renderCampaigns() {
     const grid = document.getElementById('timelineGrid');
     grid.innerHTML = '<div id="todayLine" class="today-line"></div>';
     
+    // Weekend kolommen
     if (currentView === 'day') {
         for (let i = 1; i <= 365; i++) {
             const date = new Date(2026, 0, i);
@@ -206,8 +207,7 @@ function saveTask() {
         color: departments[document.getElementById('department').value]
     };
     if(!data.title || !data.startWeek) return alert("Vul titel en startweek in.");
-    database.ref('campaigns_2026/' + id).update(data);
-    closeModal();
+    database.ref('campaigns_2026/' + id).update(data).then(() => closeModal());
 }
 
 function addComment() {
@@ -228,7 +228,7 @@ function refreshCommentsOnly(itemId) {
     if(item && item.comments) {
         Object.keys(item.comments).forEach(key => {
             const c = item.comments[key];
-            list.innerHTML += `<div class="comment-item"><span>${c.date}: ${c.text}</span><span style="color:#9ca3af; cursor:pointer;" onclick="deleteComment('${key}')">&times;</span></div>`;
+            list.innerHTML += `<div class="comment-item" style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:5px; border-bottom:1px solid #f0f0f0;"><span>${c.date}: ${c.text}</span><span style="color:#9ca3af; cursor:pointer;" onclick="deleteComment('${key}')">&times;</span></div>`;
         });
     }
 }
@@ -246,8 +246,7 @@ function openAttachment() {
 function deleteItem() {
     const id = document.getElementById('currentId').value;
     if(confirm("Item verwijderen?")) {
-        database.ref('campaigns_2026/' + id).remove();
-        closeModal();
+        database.ref('campaigns_2026/' + id).remove().then(() => closeModal());
     }
 }
 
@@ -256,6 +255,8 @@ function resetModal() {
     document.getElementById('taskName').value = '';
     document.getElementById('taskDesc').value = '';
     document.getElementById('attachmentUrl').value = '';
+    document.getElementById('startWeek').value = '';
+    document.getElementById('endWeek').value = '';
     document.getElementById('deleteBtn').style.display = 'none';
     document.getElementById('commentsList').innerHTML = '';
 }
