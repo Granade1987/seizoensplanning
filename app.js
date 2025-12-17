@@ -164,21 +164,6 @@ function listenToFirebase() {
 function openModal(id = null) {
     document.getElementById('itemModal').style.display = 'flex';
     resetModal();
-    if (currentView === 'day') {
-        document.getElementById('startLabel').textContent = 'Start datum';
-        document.getElementById('endLabel').textContent = 'Eind datum';
-        document.getElementById('startWeek').style.display = 'none';
-        document.getElementById('endWeek').style.display = 'none';
-        document.getElementById('startDate').style.display = 'block';
-        document.getElementById('endDate').style.display = 'block';
-    } else {
-        document.getElementById('startLabel').textContent = 'Start week';
-        document.getElementById('endLabel').textContent = 'Eind week';
-        document.getElementById('startWeek').style.display = 'block';
-        document.getElementById('endWeek').style.display = 'block';
-        document.getElementById('startDate').style.display = 'none';
-        document.getElementById('endDate').style.display = 'none';
-    }
     if (id) {
         const item = campaigns.find(c => c.id == id);
         document.getElementById('currentId').value = item.id;
@@ -186,17 +171,11 @@ function openModal(id = null) {
         document.getElementById('department').value = item.department;
         document.getElementById('taskDesc').value = item.description || '';
         document.getElementById('attachmentUrl').value = item.attachmentUrl || '';
-        if (currentView === 'day') {
-            // Bereken datum van week
-            // Voor start: eerste dag van week
-            const startDate = getDateFromWeek(item.startWeek, 2026);
-            const endDate = getDateFromWeek(item.endWeek, 2026);
-            document.getElementById('startDate').value = startDate.toISOString().split('T')[0];
-            document.getElementById('endDate').value = endDate.toISOString().split('T')[0];
-        } else {
-            document.getElementById('startWeek').value = item.startWeek;
-            document.getElementById('endWeek').value = item.endWeek;
-        }
+        // Bereken datum van week
+        const startDate = getDateFromWeek(item.startWeek, 2026);
+        const endDate = getDateFromWeek(item.endWeek, 2026);
+        document.getElementById('startDate').value = startDate.toISOString().split('T')[0];
+        document.getElementById('endDate').value = endDate.toISOString().split('T')[0];
         document.getElementById('deleteBtn').style.display = 'block';
         refreshCommentsOnly(id);
     }
@@ -204,16 +183,10 @@ function openModal(id = null) {
 
 function saveTask() {
     const id = document.getElementById('currentId').value || Date.now().toString();
-    let startWeek, endWeek;
-    if (currentView === 'day') {
-        const startDate = new Date(document.getElementById('startDate').value);
-        const endDate = new Date(document.getElementById('endDate').value);
-        startWeek = getWeekNumber(startDate);
-        endWeek = getWeekNumber(endDate);
-    } else {
-        startWeek = parseInt(document.getElementById('startWeek').value);
-        endWeek = parseInt(document.getElementById('endWeek').value);
-    }
+    const startDate = new Date(document.getElementById('startDate').value);
+    const endDate = new Date(document.getElementById('endDate').value);
+    const startWeek = getWeekNumber(startDate);
+    const endWeek = getWeekNumber(endDate);
     const data = {
         id, title: document.getElementById('taskName').value,
         department: document.getElementById('department').value,
@@ -270,8 +243,6 @@ function resetModal() {
     document.getElementById('taskName').value = '';
     document.getElementById('taskDesc').value = '';
     document.getElementById('attachmentUrl').value = '';
-    document.getElementById('startWeek').value = '';
-    document.getElementById('endWeek').value = '';
     document.getElementById('startDate').value = '';
     document.getElementById('endDate').value = '';
     document.getElementById('deleteBtn').style.display = 'none';
