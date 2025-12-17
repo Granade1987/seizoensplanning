@@ -8,7 +8,7 @@
 }
 
 body {
-    font-family: 'Inter', sans-serif;
+    font-family: 'Inter', -apple-system, sans-serif;
     background-color: var(--bg-main);
     margin: 0; padding: 30px;
 }
@@ -35,13 +35,13 @@ header { display: flex; justify-content: space-between; align-items: center; mar
 /* TIMELINE */
 .timeline-wrapper {
     background: white; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-    overflow-x: auto; border: 1px solid var(--border-color);
+    overflow-x: auto; border: 1px solid var(--border-color); position: relative;
 }
 .timeline-header { position: sticky; top: 0; z-index: 100; background: white; width: max-content; }
-.timeline-months, .timeline-weeks, .timeline-grid { display: grid; grid-template-columns: repeat(52, var(--week-width)); width: max-content; }
+.timeline-months, .timeline-weeks, .timeline-grid { display: grid; grid-template-columns: repeat(53, var(--week-width)); width: max-content; }
 
 .month-label {
-    text-align: center; padding: 12px 0; font-size: 12px; font-weight: 800;
+    text-align: center; padding: 12px 0; font-size: 11px; font-weight: 800;
     text-transform: uppercase; color: var(--primary); border-right: 1px solid var(--border-color);
     border-bottom: 1px solid var(--border-color); background: #f8fafc;
 }
@@ -51,10 +51,22 @@ header { display: flex; justify-content: space-between; align-items: center; mar
     color: #6b7280; border-right: 1px solid var(--border-color); background: #f3f4f6;
 }
 
+.week-num.current-week {
+    background-color: #fbbf24 !important; /* Goud-geel voor huidige week */
+    color: #000;
+}
+
 .timeline-grid {
-    min-height: 550px; grid-auto-rows: 65px; padding: 20px 0;
+    min-height: 600px; grid-auto-rows: 65px; padding: 20px 0;
     background-image: linear-gradient(to right, var(--border-color) 1px, transparent 1px);
     background-size: var(--week-width) 100%;
+    position: relative;
+}
+
+/* RODE LIJN */
+.today-line {
+    position: absolute; top: 0; bottom: 0; width: 2px;
+    background-color: var(--danger); z-index: 50; pointer-events: none;
 }
 
 /* BALKJES */
@@ -62,27 +74,37 @@ header { display: flex; justify-content: space-between; align-items: center; mar
     color: white; border-radius: 8px; margin: 8px 4px; padding: 12px;
     font-size: 12px; font-weight: 700; white-space: nowrap; overflow: hidden;
     text-overflow: ellipsis; cursor: pointer; border-left: 5px solid rgba(0,0,0,0.2);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1); z-index: 5;
 }
 
-/* MODAL FIX */
+/* MODAL & COMMENTS */
 .modal {
-    display: none; /* Wordt 'flex' via JS */
-    position: fixed; z-index: 2000; inset: 0;
+    display: none; position: fixed; z-index: 2000; inset: 0;
     background: rgba(0,0,0,0.5); backdrop-filter: blur(4px);
     align-items: center; justify-content: center;
 }
 .modal-content {
     background: white; padding: 40px; border-radius: 20px;
-    width: 500px; position: relative; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+    width: 500px; position: relative; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
 }
-.form-group { margin-bottom: 20px; }
+.form-group { margin-bottom: 18px; }
 .form-group label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 14px; }
-input, textarea, select { width: 100%; padding: 12px; border: 1px solid #d1d5db; border-radius: 10px; font-family: inherit; font-size: 14px; }
+input, textarea, select { width: 100%; padding: 12px; border: 1px solid #d1d5db; border-radius: 10px; font-family: inherit; font-size: 14px; box-sizing: border-box; }
 
-.input-row { display: flex; gap: 30px; }
-.modal-buttons { display: flex; justify-content: space-between; margin-top: 35px; }
-.right-buttons { display: flex; gap: 15px; }
+.input-row { display: flex; gap: 20px; }
+.modal-divider { border: 0; border-top: 1px solid #e5e7eb; margin: 20px 0; }
 
+.comments-display {
+    max-height: 120px; overflow-y: auto; background: #f9fafb;
+    padding: 12px; border-radius: 10px; margin-bottom: 12px; border: 1px solid #eee;
+}
+.comment-item { font-size: 13px; margin-bottom: 8px; padding-bottom: 5px; border-bottom: 1px solid #f0f0f0; line-height: 1.4; }
+.comment-date { font-size: 10px; color: #9ca3af; font-weight: bold; margin-right: 6px; }
+
+.comment-input-group { display: flex; gap: 10px; }
+.btn-comment { background: var(--primary); color: white; border: none; border-radius: 8px; padding: 0 15px; cursor: pointer; font-weight: 600; }
+
+.modal-buttons { display: flex; justify-content: space-between; margin-top: 30px; }
 .btn-save { background: var(--success); color: white; border: none; padding: 12px 25px; border-radius: 8px; cursor: pointer; font-weight: 600; }
 .btn-cancel { background: #f3f4f6; border: none; padding: 12px 20px; border-radius: 8px; cursor: pointer; }
 .btn-delete-item { background: #fee2e2; color: var(--danger); border: none; padding: 12px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; }

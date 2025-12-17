@@ -12,6 +12,7 @@
         <header>
             <div class="header-content">
                 <h1>Marketing Jaarplanning 2026</h1>
+                <p>Gedeelde team-kalender. De rode lijn geeft de huidige dag aan.</p>
             </div>
             <div class="actions">
                 <button class="btn-main" onclick="openModal()">+ Nieuw Item</button>
@@ -25,20 +26,21 @@
                 <div class="timeline-months" id="monthHeader"></div>
                 <div class="timeline-weeks" id="weekHeader"></div>
             </div>
-            <div class="timeline-grid" id="timelineGrid"></div>
+            <div class="timeline-grid" id="timelineGrid">
+                </div>
         </div>
     </div>
 
     <div id="itemModal" class="modal">
         <div class="modal-content">
             <span class="close-modal" onclick="closeModal()">&times;</span>
-            <h2 id="modalTitle">Item Toevoegen</h2>
+            <h2 id="modalTitle">Item Bewerken</h2>
             
             <input type="hidden" id="currentId">
             
             <div class="form-group">
                 <label for="taskName">Titel</label>
-                <input type="text" id="taskName" placeholder="Bijv. Black Friday Actie">
+                <input type="text" id="taskName" placeholder="Bijv. Voorjaarscampagne">
             </div>
 
             <div class="form-group">
@@ -53,19 +55,30 @@
                 </select>
             </div>
 
-            <div class="form-group">
-                <label for="taskDesc">Beschrijving</label>
-                <textarea id="taskDesc" rows="3" placeholder="Extra informatie..."></textarea>
-            </div>
-            
             <div class="input-row">
                 <div class="form-group">
                     <label>Start week</label>
-                    <input type="number" id="startWeek" min="1" max="52">
+                    <input type="number" id="startWeek" min="1" max="53">
                 </div>
                 <div class="form-group">
                     <label>Eind week</label>
-                    <input type="number" id="endWeek" min="1" max="52">
+                    <input type="number" id="endWeek" min="1" max="53">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="taskDesc">Beschrijving</label>
+                <textarea id="taskDesc" rows="2" placeholder="Wat gaan we doen?"></textarea>
+            </div>
+
+            <hr class="modal-divider">
+
+            <div class="form-group">
+                <label>Comments / Updates</label>
+                <div id="commentsList" class="comments-display"></div>
+                <div class="comment-input-group">
+                    <input type="text" id="newComment" placeholder="Typ een update...">
+                    <button type="button" onclick="addComment()" class="btn-comment">Post</button>
                 </div>
             </div>
 
