@@ -63,36 +63,28 @@ function buildHeaders() {
     if (currentView === 'month') {
         monthHeader.style.display = 'none';
         monthStructure.forEach(m => {
-            const el = document.createElement('div');
-            el.className = 'week-num'; el.innerText = m.name;
+            const el = document.createElement('div'); el.className = 'week-num'; el.innerText = m.name;
             weekHeader.appendChild(el);
         });
     } else if (currentView === 'week') {
         monthHeader.style.display = 'grid';
         monthStructure.forEach(m => {
-            const el = document.createElement('div');
-            el.className = 'month-label'; el.innerText = m.name;
-            el.style.gridColumn = `span ${m.weeks}`;
+            const el = document.createElement('div'); el.className = 'month-label';
+            el.innerText = m.name; el.style.gridColumn = `span ${m.weeks}`;
             monthHeader.appendChild(el);
         });
         for (let i = 1; i <= 53; i++) {
-            const el = document.createElement('div');
-            el.className = 'week-num'; el.innerText = 'W' + i;
+            const el = document.createElement('div'); el.className = 'week-num'; el.innerText = 'W' + i;
             weekHeader.appendChild(el);
         }
     } else if (currentView === 'day') {
         monthHeader.style.display = 'grid';
         monthStructure.forEach((m, mIdx) => {
-            const el = document.createElement('div');
-            el.className = 'month-label'; el.innerText = m.name;
-            el.style.gridColumn = `span ${m.days}`;
+            const el = document.createElement('div'); el.className = 'month-label';
+            el.innerText = m.name; el.style.gridColumn = `span ${m.days}`;
             monthHeader.appendChild(el);
             for (let d = 1; d <= m.days; d++) {
-                const date = new Date(2026, mIdx, d);
-                const isWeekend = (date.getDay() === 0 || date.getDay() === 6);
-                const dEl = document.createElement('div');
-                dEl.className = 'week-num' + (isWeekend ? ' weekend' : '');
-                dEl.innerText = d;
+                const dEl = document.createElement('div'); dEl.className = 'week-num'; dEl.innerText = d;
                 weekHeader.appendChild(dEl);
             }
         });
@@ -102,19 +94,7 @@ function buildHeaders() {
 function renderCampaigns() {
     const grid = document.getElementById('timelineGrid');
     grid.innerHTML = '';
-    
-    // Weekend overlays (geen grid-items meer, dus geen hoogte impact)
-    if (currentView === 'day') {
-        for (let i = 1; i <= 365; i++) {
-            const date = new Date(2026, 0, i);
-            if (date.getDay() === 0 || date.getDay() === 6) {
-                const overlay = document.createElement('div');
-                overlay.className = 'weekend-overlay';
-                overlay.style.gridColumn = i;
-                grid.appendChild(overlay);
-            }
-        }
-    }
+    currentView === 'day' ? grid.classList.add('day-view') : grid.classList.remove('day-view');
 
     const filtered = campaigns.filter(c => activeFilters.includes(c.department));
     const rows = [];
@@ -122,14 +102,12 @@ function renderCampaigns() {
     filtered.forEach(item => {
         let start, end;
         if (currentView === 'month') {
-            start = Math.max(1, Math.min(12, Math.ceil(item.startWeek / 4.42)));
-            end = Math.max(1, Math.min(12, Math.ceil(item.endWeek / 4.42)));
+            start = Math.max(1, Math.ceil(item.startWeek / 4.42));
+            end = Math.max(1, Math.ceil(item.endWeek / 4.42));
         } else if (currentView === 'day') {
-            start = (item.startWeek * 7) - 6;
-            end = item.endWeek * 7;
+            start = (item.startWeek * 7) - 6; end = item.endWeek * 7;
         } else {
-            start = item.startWeek;
-            end = item.endWeek;
+            start = item.startWeek; end = item.endWeek;
         }
 
         let rowIndex = rows.findIndex(row => row.every(p => end < p.start || start > p.end));
@@ -138,7 +116,7 @@ function renderCampaigns() {
 
         const bar = document.createElement('div');
         bar.className = 'task-bar';
-        bar.innerHTML = `<span>${item.title}</span> ${item.attachmentUrl ? '🔗' : ''}`;
+        bar.innerHTML = `<span>${item.title}</span> ${item.attachmentUrl ? '<span style="margin-left:5px">🔗</span>' : ''}`;
         bar.style.backgroundColor = item.color;
         bar.style.gridColumn = `${start} / span ${(end - start) + 1}`;
         bar.style.gridRow = rowIndex + 1;
@@ -146,8 +124,6 @@ function renderCampaigns() {
         grid.appendChild(bar);
     });
 }
-
-// ... Rest van de functies (listenToFirebase, openModal, saveTask, etc) blijven hetzelfde ...
 
 function listenToFirebase() {
     database.ref('campaigns_2026').on('value', (s) => {
@@ -169,7 +145,7 @@ function openModal(id = null) {
         document.getElementById('startWeek').value = item.startWeek;
         document.getElementById('endWeek').value = item.endWeek;
         document.getElementById('deleteBtn').style.display = 'block';
-        refreshCommentsOnly(id);
+        refreshComments(id);
     }
 }
 
@@ -195,30 +171,29 @@ function addComment() {
     const comment = { text, date: new Date().toLocaleDateString('nl-NL', {day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit'}) };
     database.ref(`campaigns_2026/${id}/comments`).push(comment).then(() => {
         document.getElementById('newComment').value = '';
-        refreshCommentsOnly(id);
+        refreshComments(id);
     });
 }
 
-function refreshCommentsOnly(itemId) {
+function refreshComments(itemId) {
     const item = campaigns.find(c => c.id == itemId);
     const list = document.getElementById('commentsList');
     list.innerHTML = '';
     if(item && item.comments) {
         Object.keys(item.comments).forEach(key => {
             const c = item.comments[key];
-            list.innerHTML += `<div style="font-size:12px; margin-bottom:5px; border-bottom:1px solid #eee; display:flex; justify-content:space-between;"><span>${c.date}: ${c.text}</span><span style="cursor:pointer; color:red" onclick="deleteComment('${key}')">&times;</span></div>`;
+            list.innerHTML += `<div style="margin-bottom:8px; padding-bottom:4px; border-bottom:1px solid #eee;">
+                <strong>${c.date}:</strong> ${c.text}
+            </div>`;
         });
     }
 }
 
-function deleteComment(key) {
-    const id = document.getElementById('currentId').value;
-    database.ref(`campaigns_2026/${id}/comments/${key}`).remove().then(() => refreshCommentsOnly(id));
-}
-
 function deleteItem() {
     const id = document.getElementById('currentId').value;
-    if(confirm("Verwijderen?")) database.ref('campaigns_2026/' + id).remove().then(() => closeModal());
+    if(confirm("Item definitief verwijderen?")) {
+        database.ref('campaigns_2026/' + id).remove().then(() => closeModal());
+    }
 }
 
 function openAttachment() {
@@ -243,13 +218,15 @@ function createLegend() {
     const leg = document.getElementById('legend');
     leg.innerHTML = '';
     Object.keys(departments).forEach(d => {
-        leg.innerHTML += `<div class="legend-item ${activeFilters.includes(d) ? 'active' : 'inactive'}" onclick="toggleFilter('${d}')"><div class="legend-color" style="background:${departments[d]}"></div>${d}</div>`;
+        leg.innerHTML += `<div class="legend-item" onclick="toggleFilter('${d}')">
+            <div class="legend-color" style="background:${departments[d]}"></div>${d}
+        </div>`;
     });
 }
 
 function toggleFilter(d) {
     activeFilters.includes(d) ? activeFilters = activeFilters.filter(f => f !== d) : activeFilters.push(d);
-    createLegend(); renderCampaigns();
+    renderCampaigns();
 }
 
 window.onclick = (e) => { if(e.target.className === 'modal') closeModal(); };
