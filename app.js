@@ -91,7 +91,7 @@ function buildHeaders() {
         }
     } else if (currentView === 'day') {
         monthHeader.style.display = 'grid';
-        weekNumHeader.style.display = 'grid';
+        weekNumHeader.style.display = 'none';
         weekHeader.style.display = 'grid';
         monthStructure.forEach((m, mIdx) => {
             const el = document.createElement('div');
