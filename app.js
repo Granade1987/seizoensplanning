@@ -48,13 +48,12 @@ function switchView(view, btn) {
         root.style.setProperty('--column-width', '60px');
         root.style.setProperty('--total-cols', '53');
     } else {
-        root.style.setProperty('--column-width', '150px');
-        root.style.setProperty('--total-cols', '12');
+        root.style.setProperty('--column-width', '180px');
+        root.style.setProperty('--total-cols', '12'); // Harde limit op 12 maanden
     }
 
     buildHeaders();
     renderCampaigns();
-    if(view === 'day') scrollToToday();
 }
 
 function buildHeaders() {
@@ -72,7 +71,6 @@ function buildHeaders() {
         });
     } else if (currentView === 'week') {
         monthHeader.style.display = 'grid';
-        const curW = getISOWeek(new Date());
         monthStructure.forEach(m => {
             const el = document.createElement('div');
             el.className = 'month-label';
@@ -80,6 +78,7 @@ function buildHeaders() {
             el.style.gridColumn = `span ${m.weeks}`;
             monthHeader.appendChild(el);
         });
+        const curW = getISOWeek(new Date());
         for (let i = 1; i <= 53; i++) {
             const el = document.createElement('div');
             el.className = 'week-num' + (i === curW ? ' current-week' : '');
@@ -88,23 +87,19 @@ function buildHeaders() {
         }
     } else if (currentView === 'day') {
         monthHeader.style.display = 'grid';
-        let dayOfYear = 1;
-        monthStructure.forEach((m, mIndex) => {
+        monthStructure.forEach((m, mIdx) => {
             const el = document.createElement('div');
             el.className = 'month-label';
             el.innerText = m.name;
             el.style.gridColumn = `span ${m.days}`;
             monthHeader.appendChild(el);
-            
             for (let d = 1; d <= m.days; d++) {
-                const date = new Date(2026, mIndex, d);
+                const date = new Date(2026, mIdx, d);
                 const isWeekend = (date.getDay() === 0 || date.getDay() === 6);
                 const dEl = document.createElement('div');
                 dEl.className = 'week-num' + (isWeekend ? ' weekend' : '');
                 dEl.innerText = d;
-                dEl.style.fontSize = '8px';
                 weekHeader.appendChild(dEl);
-                dayOfYear++;
             }
         });
     }
@@ -114,7 +109,6 @@ function renderCampaigns() {
     const grid = document.getElementById('timelineGrid');
     grid.innerHTML = '<div id="todayLine" class="today-line"></div>';
     
-    // Weekend kolommen toevoegen (alleen in dag-weergave)
     if (currentView === 'day') {
         for (let i = 1; i <= 365; i++) {
             const date = new Date(2026, 0, i);
@@ -128,16 +122,15 @@ function renderCampaigns() {
     }
 
     updateTodayLine();
-    
     const filtered = campaigns.filter(c => activeFilters.includes(c.department));
     const rows = [];
     
     filtered.forEach(item => {
         let start, end;
         if (currentView === 'month') {
-            // Correctie voor maandweergave zodat december (maand 12) niet buiten de 12 kolommen valt
-            start = Math.max(1, Math.min(12, Math.floor(item.startWeek / 4.42) + 1));
-            end = Math.max(1, Math.min(12, Math.floor(item.endWeek / 4.42) + 1));
+            // Verfijnde berekening: week 1-4 = jan, week 49-53 = dec
+            start = Math.max(1, Math.min(12, Math.ceil(item.startWeek / 4.42)));
+            end = Math.max(1, Math.min(12, Math.ceil(item.endWeek / 4.42)));
         } else if (currentView === 'day') {
             start = (item.startWeek * 7) - 6;
             end = item.endWeek * 7;
@@ -146,7 +139,7 @@ function renderCampaigns() {
             end = item.endWeek;
         }
 
-        let rowIndex = rows.findIndex(row => row.every(placed => end < placed.start || start > placed.end));
+        let rowIndex = rows.findIndex(row => row.every(p => end < p.start || start > p.end));
         if (rowIndex === -1) { rows.push([{start, end}]); rowIndex = rows.length - 1; } 
         else { rows[rowIndex].push({start, end}); }
 
@@ -165,34 +158,19 @@ function updateTodayLine() {
     const now = new Date();
     if (now.getFullYear() !== 2026) return;
     const line = document.getElementById('todayLine');
-    if (!line) return;
-
     const colWidth = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--column-width'));
     let pos = 0;
-    
     if (currentView === 'day') {
-        const yearStart = new Date(2026, 0, 1);
-        const diff = now - yearStart;
-        const dayOfYear = Math.floor(diff / 86400000);
-        pos = dayOfYear * colWidth;
+        const diff = now - new Date(2026, 0, 1);
+        pos = Math.floor(diff / 86400000) * colWidth;
     } else if (currentView === 'week') {
-        const w = getISOWeek(now);
-        pos = (w - 1) * colWidth + ((now.getDay() || 7) - 1) * (colWidth / 7);
+        pos = (getISOWeek(now) - 1) * colWidth + ((now.getDay() || 7) - 1) * (colWidth / 7);
     } else {
         pos = now.getMonth() * colWidth + (now.getDate() / 31) * colWidth;
     }
     line.style.left = pos + 'px';
 }
 
-function scrollToToday() {
-    const wrapper = document.querySelector('.timeline-wrapper');
-    setTimeout(() => {
-        const line = document.getElementById('todayLine');
-        if(line) wrapper.scrollLeft = line.offsetLeft - 100;
-    }, 150);
-}
-
-// Firebase & Modal Logica
 function listenToFirebase() {
     database.ref('campaigns_2026').on('value', (s) => {
         campaigns = s.val() ? Object.values(s.val()) : [];
@@ -251,7 +229,7 @@ function refreshCommentsOnly(itemId) {
     if(item && item.comments) {
         Object.keys(item.comments).forEach(key => {
             const c = item.comments[key];
-            list.innerHTML += `<div class="comment-item"><span>${c.date}: ${c.text}</span><span class="delete-comment" onclick="deleteComment('${key}')">&times;</span></div>`;
+            list.innerHTML += `<div class="comment-item"><span>${c.date}: ${c.text}</span><span style="color:#9ca3af; cursor:pointer;" onclick="deleteComment('${key}')">&times;</span></div>`;
         });
     }
 }
@@ -279,10 +257,7 @@ function resetModal() {
     document.getElementById('taskName').value = '';
     document.getElementById('taskDesc').value = '';
     document.getElementById('attachmentUrl').value = '';
-    document.getElementById('startWeek').value = '';
-    document.getElementById('endWeek').value = '';
     document.getElementById('deleteBtn').style.display = 'none';
-    document.getElementById('commentsList').innerHTML = '';
 }
 
 function closeModal() { document.getElementById('itemModal').style.display = 'none'; }

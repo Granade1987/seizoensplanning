@@ -24,31 +24,36 @@ header { display: flex; justify-content: space-between; align-items: center; mar
 .btn-main { background: var(--primary); color: white; padding: 10px 20px; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; }
 
 .timeline-wrapper { background: white; border-radius: 12px; overflow-x: auto; border: 1px solid var(--border-color); position: relative; }
-.timeline-header { position: sticky; top: 0; z-index: 100; background: white; width: max-content; }
+.timeline-header { position: sticky; top: 0; z-index: 100; background: white; width: max-content; border-bottom: 1px solid var(--border-color); }
+
 .timeline-months, .timeline-weeks, .timeline-grid { 
     display: grid; 
     grid-template-columns: repeat(var(--total-cols), var(--column-width)); 
     width: max-content; 
 }
 
-.month-label { text-align: center; padding: 10px; font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--primary); border-right: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color); background: #f8fafc; }
-.week-num { text-align: center; font-size: 10px; font-weight: 700; padding: 8px 0; color: #6b7280; border-right: 1px solid var(--border-color); background: #f3f4f6; }
-.week-num.current-week { background-color: #fbbf24 !important; color: #000; }
-
-/* Weekend styling */
-.week-num.weekend { background-color: #e2e8f0; color: #64748b; }
-.weekend-col { 
-    background-color: rgba(226, 232, 240, 0.4); 
-    grid-row: 1 / 100; /* Loopt nu ver door naar beneden */
-    pointer-events: none; 
-    z-index: 1;
+.month-label, .week-num { 
+    text-align: center; 
+    padding: 10px 0; 
     border-right: 1px solid var(--border-color);
 }
 
+.month-label { font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--primary); background: #f8fafc; border-bottom: 1px solid var(--border-color); }
+.week-num { font-size: 10px; font-weight: 700; color: #6b7280; background: #f3f4f6; }
+.week-num.current-week { background-color: #fbbf24 !important; color: #000; }
+
+.week-num.weekend { background-color: #e2e8f0; color: #94a3b8; }
+.weekend-col { 
+    background-color: rgba(226, 232, 240, 0.4); 
+    grid-row: 1 / span 100; /* Loopt gegarandeerd door naar beneden */
+    pointer-events: none; 
+    border-right: 1px solid var(--border-color);
+    z-index: 1;
+}
+
 .timeline-grid { 
-    min-height: 600px; 
+    min-height: 650px; 
     grid-auto-rows: 55px; 
-    padding: 0; 
     position: relative; 
     background-image: linear-gradient(to right, var(--border-color) 1px, transparent 1px); 
     background-size: var(--column-width) 100%; 
@@ -59,7 +64,7 @@ header { display: flex; justify-content: space-between; align-items: center; mar
 .task-bar { 
     color: white; 
     border-radius: 6px; 
-    margin: 6px 4px; 
+    margin: 8px 4px; 
     padding: 8px; 
     font-size: 11px; 
     font-weight: 700; 
@@ -70,26 +75,15 @@ header { display: flex; justify-content: space-between; align-items: center; mar
     align-items: center; 
     white-space: nowrap; 
     overflow: hidden; 
-    z-index: 10; /* Ligt boven de weekend-kolommen */
+    z-index: 10;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 /* Modal styling */
 .modal { display: none; position: fixed; z-index: 2000; inset: 0; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; }
 .modal-content { background: white; padding: 30px; border-radius: 15px; width: 450px; max-height: 90vh; overflow-y: auto; position: relative; }
+input, textarea, select { width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; margin-top: 5px; box-sizing: border-box; }
 .form-group { margin-bottom: 15px; }
-.form-group label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 13px; }
-input, textarea, select { width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; }
-.input-with-action { display: flex; gap: 5px; }
-.btn-icon { background: #f3f4f6; border: 1px solid #d1d5db; cursor: pointer; border-radius: 6px; padding: 5px 10px; }
-.modal-divider { border: 0; border-top: 1px solid #eee; margin: 15px 0; }
 .comments-display { max-height: 120px; overflow-y: auto; background: #f9fafb; padding: 10px; border-radius: 8px; border: 1px solid #eee; margin-bottom: 10px; }
-.comment-item { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 5px; border-bottom: 1px solid #f0f0f0; padding-bottom: 3px; }
-.delete-comment { color: #9ca3af; cursor: pointer; font-size: 16px; }
-.comment-input-group { display: flex; gap: 5px; }
-.btn-comment { background: var(--primary); color: white; border: none; border-radius: 6px; padding: 0 10px; cursor: pointer; }
-.modal-buttons { display: flex; justify-content: space-between; margin-top: 20px; }
-.btn-save { background: var(--success); color: white; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-weight: 600; }
-.btn-cancel { background: #f3f4f6; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; }
-.btn-delete-item { background: #fee2e2; color: var(--danger); border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; }
+.comment-item { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 5px; border-bottom: 1px solid #f0f0f0; }
 .close-modal { position: absolute; right: 15px; top: 10px; font-size: 24px; cursor: pointer; color: #9ca3af; }
