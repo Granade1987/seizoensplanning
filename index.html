@@ -12,35 +12,48 @@
         <header>
             <div class="header-content">
                 <h1>Marketing Jaarplanning 2025</h1>
-                <p>Klik op een item om het te bewerken of verwijderen. Data wordt automatisch opgeslagen.</p>
+                <p>Klik op een item om het aan te passen of te verwijderen.</p>
             </div>
             <div class="actions">
-                <button class="btn-secondary" onclick="clearAll()">Planning Wissen</button>
                 <button class="btn-main" onclick="openModal()">+ Nieuw Item</button>
             </div>
         </header>
 
+        <div class="legend" id="legend"></div>
+
         <div class="timeline-wrapper">
             <div class="timeline-weeks" id="weekHeader"></div>
-            
             <div class="timeline-grid" id="timelineGrid"></div>
         </div>
     </div>
 
     <div id="itemModal" class="modal">
         <div class="modal-content">
-            <h2 id="modalTitle">Campagne Toevoegen</h2>
+            <span class="close-modal" onclick="closeModal()">&times;</span>
+            <h2 id="modalTitle">Item Toevoegen</h2>
             
             <input type="hidden" id="currentId">
             
             <div class="form-group">
                 <label for="taskName">Titel</label>
-                <input type="text" id="taskName" placeholder="bijv. Wintersale">
+                <input type="text" id="taskName" placeholder="Naam van de campagne">
+            </div>
+
+            <div class="form-group">
+                <label for="department">Afdeling</label>
+                <select id="department">
+                    <option value="Logistiek">Logistiek</option>
+                    <option value="Webshop">Webshop</option>
+                    <option value="MJFM">MJFM</option>
+                    <option value="Outlet">Outlet</option>
+                    <option value="Marketing">Marketing</option>
+                    <option value="Winkels">Winkels</option>
+                </select>
             </div>
 
             <div class="form-group">
                 <label for="taskDesc">Beschrijving</label>
-                <textarea id="taskDesc" rows="3" placeholder="Doelen, kanalen, etc."></textarea>
+                <textarea id="taskDesc" rows="3" placeholder="Details..."></textarea>
             </div>
             
             <div class="input-row">
@@ -56,7 +69,6 @@
 
             <div class="modal-buttons">
                 <button id="deleteBtn" onclick="deleteItem()" class="btn-delete-item">Verwijderen</button>
-                
                 <div class="right-buttons">
                     <button onclick="closeModal()" class="btn-cancel">Annuleren</button>
                     <button onclick="saveTask()" class="btn-save">Opslaan</button>
