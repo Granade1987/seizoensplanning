@@ -20,14 +20,13 @@ const departments = {
     'Outlet': '#ec4899', 'Marketing': '#10b981', 'Winkels': '#6366f1'
 };
 
-const monthStructure = [
-    { name: 'Januari', days: 31, weeks: 4 }, { name: 'Februari', days: 28, weeks: 4 },
-    { name: 'Maart', days: 31, weeks: 5 }, { name: 'April', days: 30, weeks: 4 },
-    { name: 'Mei', days: 31, weeks: 4 }, { name: 'Juni', days: 30, weeks: 5 },
-    { name: 'Juli', days: 31, weeks: 4 }, { name: 'Augustus', days: 31, weeks: 4 },
-    { name: 'September', days: 30, weeks: 5 }, { name: 'Oktober', days: 31, weeks: 4 },
-    { name: 'November', days: 30, weeks: 4 }, { name: 'December', days: 31, weeks: 5 }
-];
+function getWeekNumber(date) {
+    const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+    const dayNum = d.getUTCDay() || 7;
+    d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+    const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+    return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+}
 
 document.addEventListener('DOMContentLoaded', () => {
     switchView('week', document.querySelector('.btn-view[onclick*="week"]'));
@@ -64,11 +63,13 @@ function switchView(view, btn) {
 
 function buildHeaders() {
     const monthHeader = document.getElementById('monthHeader');
+    const weekNumHeader = document.getElementById('weekNumHeader');
     const weekHeader = document.getElementById('weekHeader');
-    monthHeader.innerHTML = ''; weekHeader.innerHTML = '';
+    monthHeader.innerHTML = ''; weekNumHeader.innerHTML = ''; weekHeader.innerHTML = '';
 
     if (currentView === 'month') {
         monthHeader.style.display = 'none';
+        weekNumHeader.style.display = 'none';
         monthStructure.forEach(m => {
             const el = document.createElement('div');
             el.className = 'week-num'; el.innerText = m.name;
@@ -76,6 +77,7 @@ function buildHeaders() {
         });
     } else if (currentView === 'week') {
         monthHeader.style.display = 'grid';
+        weekNumHeader.style.display = 'none';
         monthStructure.forEach(m => {
             const el = document.createElement('div');
             el.className = 'month-label'; el.innerText = m.name;
@@ -89,18 +91,45 @@ function buildHeaders() {
         }
     } else if (currentView === 'day') {
         monthHeader.style.display = 'grid';
+        weekNumHeader.style.display = 'grid';
+        weekHeader.style.display = 'grid';
         monthStructure.forEach((m, mIdx) => {
             const el = document.createElement('div');
             el.className = 'month-label'; el.innerText = m.name;
             el.style.gridColumn = `span ${m.days}`;
             monthHeader.appendChild(el);
+
+            let currentWeek = null;
+            let weekStart = 1;
             for (let d = 1; d <= m.days; d++) {
                 const date = new Date(2026, mIdx, d);
+                const week = getWeekNumber(date);
+                if (currentWeek !== week) {
+                    if (currentWeek !== null) {
+                        const span = d - weekStart;
+                        const wEl = document.createElement('div');
+                        wEl.className = 'week-num-label';
+                        wEl.innerText = 'W' + currentWeek;
+                        wEl.style.gridColumn = `span ${span}`;
+                        weekNumHeader.appendChild(wEl);
+                    }
+                    currentWeek = week;
+                    weekStart = d;
+                }
                 const isWeekend = (date.getDay() === 0 || date.getDay() === 6);
                 const dEl = document.createElement('div');
                 dEl.className = 'week-num' + (isWeekend ? ' weekend' : '');
                 dEl.innerText = d;
                 weekHeader.appendChild(dEl);
+            }
+            // Laatste week
+            if (currentWeek !== null) {
+                const span = m.days - weekStart + 1;
+                const wEl = document.createElement('div');
+                wEl.className = 'week-num-label';
+                wEl.innerText = 'W' + currentWeek;
+                wEl.style.gridColumn = `span ${span}`;
+                weekNumHeader.appendChild(wEl);
             }
         });
     }
