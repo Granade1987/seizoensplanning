@@ -30,7 +30,7 @@ const monthStructure = [
 ];
 
 document.addEventListener('DOMContentLoaded', () => {
-    switchView('week', document.querySelector('.btn-view[onclick*="week"]'));
+    switchView('week', document.querySelector('.btn-view.active'));
     createLegend();
     listenToFirebase();
 });
@@ -38,14 +38,14 @@ document.addEventListener('DOMContentLoaded', () => {
 function switchView(view, btn) {
     currentView = view;
     document.querySelectorAll('.btn-view').forEach(b => b.classList.remove('active'));
-    if(btn) btn.classList.add('active');
+    btn.classList.add('active');
     
     const root = document.documentElement;
     if (view === 'day') {
-        root.style.setProperty('--column-width', '35px');
+        root.style.setProperty('--column-width', '40px');
         root.style.setProperty('--total-cols', '365');
     } else if (view === 'week') {
-        root.style.setProperty('--column-width', '60px');
+        root.style.setProperty('--column-width', '65px');
         root.style.setProperty('--total-cols', '53');
     } else {
         root.style.setProperty('--column-width', '180px');
@@ -66,26 +66,18 @@ function buildHeaders() {
             const el = document.createElement('div'); el.className = 'week-num'; el.innerText = m.name;
             weekHeader.appendChild(el);
         });
-    } else if (currentView === 'week') {
-        monthHeader.style.display = 'grid';
-        monthStructure.forEach(m => {
-            const el = document.createElement('div'); el.className = 'month-label';
-            el.innerText = m.name; el.style.gridColumn = `span ${m.weeks}`;
-            monthHeader.appendChild(el);
-        });
-        for (let i = 1; i <= 53; i++) {
-            const el = document.createElement('div'); el.className = 'week-num'; el.innerText = 'W' + i;
-            weekHeader.appendChild(el);
-        }
-    } else if (currentView === 'day') {
+    } else {
         monthHeader.style.display = 'grid';
         monthStructure.forEach((m, mIdx) => {
-            const el = document.createElement('div'); el.className = 'month-label';
-            el.innerText = m.name; el.style.gridColumn = `span ${m.days}`;
+            const el = document.createElement('div'); el.className = 'month-label'; el.innerText = m.name;
+            el.style.gridColumn = `span ${currentView === 'day' ? m.days : m.weeks}`;
             monthHeader.appendChild(el);
-            for (let d = 1; d <= m.days; d++) {
-                const dEl = document.createElement('div'); dEl.className = 'week-num'; dEl.innerText = d;
-                weekHeader.appendChild(dEl);
+            
+            const count = currentView === 'day' ? m.days : m.weeks;
+            for (let i = 1; i <= count; i++) {
+                const wEl = document.createElement('div'); wEl.className = 'week-num';
+                wEl.innerText = currentView === 'day' ? i : 'W' + i;
+                weekHeader.appendChild(wEl);
             }
         });
     }
@@ -100,15 +92,10 @@ function renderCampaigns() {
     const rows = [];
     
     filtered.forEach(item => {
-        let start, end;
-        if (currentView === 'month') {
-            start = Math.max(1, Math.ceil(item.startWeek / 4.42));
-            end = Math.max(1, Math.ceil(item.endWeek / 4.42));
-        } else if (currentView === 'day') {
-            start = (item.startWeek * 7) - 6; end = item.endWeek * 7;
-        } else {
-            start = item.startWeek; end = item.endWeek;
-        }
+        let start = item.startWeek;
+        let end = item.endWeek;
+        if (currentView === 'day') { start = (item.startWeek * 7) - 6; end = item.endWeek * 7; }
+        if (currentView === 'month') { start = Math.ceil(item.startWeek/4.4); end = Math.ceil(item.endWeek/4.4); }
 
         let rowIndex = rows.findIndex(row => row.every(p => end < p.start || start > p.end));
         if (rowIndex === -1) { rows.push([{start, end}]); rowIndex = rows.length - 1; } 
@@ -116,7 +103,7 @@ function renderCampaigns() {
 
         const bar = document.createElement('div');
         bar.className = 'task-bar';
-        bar.innerHTML = `<span>${item.title}</span> ${item.attachmentUrl ? '<span style="margin-left:5px">🔗</span>' : ''}`;
+        bar.innerText = item.title;
         bar.style.backgroundColor = item.color;
         bar.style.gridColumn = `${start} / span ${(end - start) + 1}`;
         bar.style.gridRow = rowIndex + 1;
@@ -134,18 +121,19 @@ function listenToFirebase() {
 
 function openModal(id = null) {
     document.getElementById('itemModal').style.display = 'flex';
-    resetModal();
     if (id) {
         const item = campaigns.find(c => c.id == id);
         document.getElementById('currentId').value = item.id;
         document.getElementById('taskName').value = item.title;
         document.getElementById('department').value = item.department;
-        document.getElementById('taskDesc').value = item.description || '';
-        document.getElementById('attachmentUrl').value = item.attachmentUrl || '';
         document.getElementById('startWeek').value = item.startWeek;
         document.getElementById('endWeek').value = item.endWeek;
+        document.getElementById('taskDesc').value = item.description || '';
+        document.getElementById('attachmentUrl').value = item.attachmentUrl || '';
         document.getElementById('deleteBtn').style.display = 'block';
         refreshComments(id);
+    } else {
+        resetModal();
     }
 }
 
@@ -154,21 +142,20 @@ function saveTask() {
     const data = {
         id, title: document.getElementById('taskName').value,
         department: document.getElementById('department').value,
-        description: document.getElementById('taskDesc').value,
-        attachmentUrl: document.getElementById('attachmentUrl').value,
         startWeek: parseInt(document.getElementById('startWeek').value),
         endWeek: parseInt(document.getElementById('endWeek').value),
+        description: document.getElementById('taskDesc').value,
+        attachmentUrl: document.getElementById('attachmentUrl').value,
         color: departments[document.getElementById('department').value]
     };
-    if(!data.title || !data.startWeek) return alert("Vul titel en startweek in.");
     database.ref('campaigns_2026/' + id).update(data).then(() => closeModal());
 }
 
 function addComment() {
     const id = document.getElementById('currentId').value;
     const text = document.getElementById('newComment').value;
-    if(!id || !text) return;
-    const comment = { text, date: new Date().toLocaleDateString('nl-NL', {day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit'}) };
+    if(!text) return;
+    const comment = { text, date: new Date().toLocaleDateString() };
     database.ref(`campaigns_2026/${id}/comments`).push(comment).then(() => {
         document.getElementById('newComment').value = '';
         refreshComments(id);
@@ -180,53 +167,34 @@ function refreshComments(itemId) {
     const list = document.getElementById('commentsList');
     list.innerHTML = '';
     if(item && item.comments) {
-        Object.keys(item.comments).forEach(key => {
-            const c = item.comments[key];
-            list.innerHTML += `<div style="margin-bottom:8px; padding-bottom:4px; border-bottom:1px solid #eee;">
-                <strong>${c.date}:</strong> ${c.text}
-            </div>`;
+        Object.values(item.comments).forEach(c => {
+            list.innerHTML += `<div><strong>${c.date}:</strong> ${c.text}</div>`;
         });
     }
-}
-
-function deleteItem() {
-    const id = document.getElementById('currentId').value;
-    if(confirm("Item definitief verwijderen?")) {
-        database.ref('campaigns_2026/' + id).remove().then(() => closeModal());
-    }
-}
-
-function openAttachment() {
-    const url = document.getElementById('attachmentUrl').value;
-    if(url) window.open(url, '_blank');
 }
 
 function resetModal() {
     document.getElementById('currentId').value = '';
     document.getElementById('taskName').value = '';
-    document.getElementById('taskDesc').value = '';
-    document.getElementById('attachmentUrl').value = '';
     document.getElementById('startWeek').value = '';
     document.getElementById('endWeek').value = '';
+    document.getElementById('taskDesc').value = '';
+    document.getElementById('attachmentUrl').value = '';
     document.getElementById('deleteBtn').style.display = 'none';
-    document.getElementById('commentsList').innerHTML = '';
 }
 
 function closeModal() { document.getElementById('itemModal').style.display = 'none'; }
-
+function deleteItem() { 
+    const id = document.getElementById('currentId').value;
+    database.ref('campaigns_2026/' + id).remove().then(() => closeModal());
+}
 function createLegend() {
     const leg = document.getElementById('legend');
-    leg.innerHTML = '';
     Object.keys(departments).forEach(d => {
-        leg.innerHTML += `<div class="legend-item" onclick="toggleFilter('${d}')">
-            <div class="legend-color" style="background:${departments[d]}"></div>${d}
-        </div>`;
+        leg.innerHTML += `<div class="legend-item" onclick="toggleFilter('${d}')"><div class="legend-color" style="background:${departments[d]}"></div>${d}</div>`;
     });
 }
-
 function toggleFilter(d) {
     activeFilters.includes(d) ? activeFilters = activeFilters.filter(f => f !== d) : activeFilters.push(d);
     renderCampaigns();
 }
-
-window.onclick = (e) => { if(e.target.className === 'modal') closeModal(); };

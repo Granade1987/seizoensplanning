@@ -5,10 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Jaarplanning 2026</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-
     <div class="container">
         <header>
             <div class="header-content">
@@ -37,13 +36,12 @@
 
     <div id="itemModal" class="modal">
         <div class="modal-content">
-            <span class="close-modal" onclick="closeModal()">&times;</span>
             <h2 id="modalTitle">Item Bewerken</h2>
             <input type="hidden" id="currentId">
             
             <div class="form-group">
                 <label>Titel</label>
-                <input type="text" id="taskName" placeholder="Bijv. Voorjaarsactie 2026">
+                <input type="text" id="taskName">
             </div>
 
             <div class="form-group">
@@ -71,23 +69,21 @@
 
             <div class="form-group">
                 <label>Beschrijving</label>
-                <textarea id="taskDesc" rows="3" placeholder="Details van de campagne..."></textarea>
+                <textarea id="taskDesc" rows="2"></textarea>
             </div>
 
             <div class="form-group">
                 <label>Bijlage (URL)</label>
-                <div class="url-input-wrapper">
+                <div class="url-bar">
                     <input type="url" id="attachmentUrl" placeholder="https://...">
-                    <button type="button" class="btn-icon" onclick="openAttachment()">🔗</button>
+                    <button type="button" class="btn-link-icon" onclick="openAttachment()">🔗</button>
                 </div>
             </div>
 
-            <hr class="modal-divider">
-
-            <div class="form-group">
+            <div class="comment-section">
                 <label>Comments / Updates</label>
-                <div id="commentsList" class="comments-container"></div>
-                <div class="comment-post-box">
+                <div id="commentsList" class="comments-box"></div>
+                <div class="comment-input-row">
                     <input type="text" id="newComment" placeholder="Typ een update...">
                     <button type="button" onclick="addComment()" class="btn-post">Post</button>
                 </div>
