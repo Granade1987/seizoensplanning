@@ -1,0 +1,51 @@
+body { font-family: sans-serif; background: #f4f7f6; padding: 20px; }
+
+.timeline-wrapper {
+    overflow-x: auto;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    margin-top: 20px;
+}
+
+.timeline-weeks {
+    display: grid;
+    grid-template-columns: repeat(52, 40px); /* Elke week is 40px breed */
+    border-bottom: 2px solid #eee;
+    background: #f9f9f9;
+}
+
+.week-num {
+    text-align: center;
+    font-size: 10px;
+    padding: 5px 0;
+    border-right: 1px solid #eee;
+}
+
+.timeline-grid {
+    display: grid;
+    grid-template-columns: repeat(52, 40px);
+    grid-auto-rows: 40px;
+    position: relative;
+    padding: 10px 0;
+}
+
+/* De marketing balkjes */
+.task-bar {
+    background: #3498db;
+    color: white;
+    border-radius: 4px;
+    margin: 5px 2px;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    padding-left: 10px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.controls { margin-bottom: 20px; }
+input { padding: 8px; margin-right: 5px; border: 1px solid #ccc; }
+button { padding: 8px 15px; background: #27ae60; color: white; border: none; cursor: pointer; }

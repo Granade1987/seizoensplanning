@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <title>Marketing Jaarplanning</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="planning-container">
+        <h1>Marketingplanning 2024</h1>
+        
+        <div class="controls">
+            <input type="text" id="taskName" placeholder="Naam campagne">
+            <input type="number" id="startWeek" placeholder="Start week (1-52)" min="1" max="52">
+            <input type="number" id="duration" placeholder="Aantal weken" min="1">
+            <button onclick="addTask()">Item Toevoegen</button>
+        </div>
+
+        <div class="timeline-wrapper">
+            <div class="timeline-header" id="monthHeader"></div>
+            <div class="timeline-weeks" id="weekHeader"></div>
+            
+            <div class="timeline-grid" id="timelineGrid">
+                </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
