@@ -153,17 +153,17 @@ function renderCampaigns() {
         bar.style.backgroundColor = currentView === 'week' ? 'red' : item.color;
         if (currentView === 'week') {
             bar.style.position = 'absolute';
-            bar.style.left = '0px';
-            bar.style.top = '0px';
+            bar.style.left = '10px';
+            bar.style.top = '10px';
             bar.style.width = '100px';
             bar.style.height = '50px';
             bar.style.zIndex = '1000';
+            grid.parentNode.appendChild(bar);
         } else {
             bar.style.gridColumn = `${start} / span ${(end - start) + 1}`;
             bar.style.gridRow = rowIndex + 1;
+            grid.appendChild(bar);
         }
-        bar.onclick = () => openModal(item.id);
-        grid.appendChild(bar);
     });
 }
 
