@@ -272,6 +272,24 @@ function toggleFilter(d) {
     createLegend(); renderCampaigns();
 }
 
+function getWeekNumber(date) {
+    // Kopieer de datum om de originele niet te wijzigen
+    const target = new Date(date.valueOf());
+    const dayNr = (date.getDay() + 6) % 7; // Maandag = 0
+    
+    // Zet naar dichtstbijzijnde donderdag (huidige datum + 3 - dayNr)
+    target.setDate(target.getDate() - dayNr + 3);
+    
+    // 1 januari van het jaar
+    const jan4 = new Date(target.getFullYear(), 0, 4);
+    
+    // Bereken aantal weken tussen de donderdag en 4 januari
+    const weekDiff = Math.round((target - jan4) / 86400000 / 7);
+    
+    // Week 1 is de week met 4 januari
+    return 1 + weekDiff;
+}
+
 function getDateFromWeek(week, year) {
     const d = new Date(year, 0, 1);
     const day = d.getDay();
