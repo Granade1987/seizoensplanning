@@ -148,22 +148,12 @@ function renderCampaigns() {
 
         const bar = document.createElement('div');
         bar.className = 'task-bar';
-        const weekInfo = currentView === 'week' ? ` (week ${start}-${end})` : '';
-        bar.innerHTML = `<span>${item.title}${weekInfo}</span> ${item.attachmentUrl ? '🔗' : ''}`;
-        bar.style.backgroundColor = currentView === 'week' ? 'red' : item.color;
-        if (currentView === 'week') {
-            bar.style.position = 'absolute';
-            bar.style.left = '10px';
-            bar.style.top = '10px';
-            bar.style.width = '100px';
-            bar.style.height = '50px';
-            bar.style.zIndex = '1000';
-            grid.parentNode.appendChild(bar);
-        } else {
-            bar.style.gridColumn = `${start} / span ${(end - start) + 1}`;
-            bar.style.gridRow = rowIndex + 1;
-            grid.appendChild(bar);
-        }
+        bar.innerHTML = `<span>${item.title}</span> ${item.attachmentUrl ? '🔗' : ''}`;
+        bar.style.backgroundColor = item.color;
+        bar.style.gridColumn = `${start} / span ${(end - start) + 1}`;
+        bar.style.gridRow = rowIndex + 1;
+        bar.onclick = () => openModal(item.id);
+        grid.appendChild(bar);
     });
 }
 
