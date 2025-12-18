@@ -148,7 +148,8 @@ function renderCampaigns() {
 
         const bar = document.createElement('div');
         bar.className = 'task-bar';
-        bar.innerHTML = `<span>${item.title}</span> ${item.attachmentUrl ? '🔗' : ''}`;
+        const weekInfo = currentView === 'week' ? ` (week ${start}-${end})` : '';
+        bar.innerHTML = `<span>${item.title}${weekInfo}</span> ${item.attachmentUrl ? '🔗' : ''}`;
         bar.style.backgroundColor = item.color;
         bar.style.gridColumn = `${start} / span ${(end - start) + 1}`;
         bar.style.gridRow = rowIndex + 1;
