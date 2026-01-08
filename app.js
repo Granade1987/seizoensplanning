@@ -30,7 +30,7 @@ const monthStructure = [
 ];
 
 document.addEventListener('DOMContentLoaded', () => {
-    switchView('week', document.querySelector('.btn-view[onclick*="week"]'));
+    switchView('day', document.querySelector('.btn-view[onclick*="day"]'));
     createLegend();
     listenToFirebase();
 });
