@@ -116,7 +116,7 @@ function updateTodayIndicator() {
         // Bereken dag van het jaar (1-365)
         const startOfYear = new Date(today.getFullYear(), 0, 1);
         const dayOfYear = Math.floor((today - startOfYear) / (24 * 60 * 60 * 1000)) + 1;
-        const left = (dayOfYear - 1) * columnWidth;
+        const left = (dayOfYear - 1) * columnWidth + (columnWidth / 2);
         indicator.style.left = left + 'px';
     } else if (currentView === 'week') {
         // Bereken weeknummer
@@ -124,12 +124,12 @@ function updateTodayIndicator() {
         const diff = today - startOfYear;
         const dayOfYear = Math.floor(diff / (24 * 60 * 60 * 1000));
         const weekNumber = Math.ceil((dayOfYear + startOfYear.getDay() + 1) / 7);
-        const left = (weekNumber - 1) * columnWidth;
+        const left = (weekNumber - 1) * columnWidth + (columnWidth / 2);
         indicator.style.left = left + 'px';
     } else if (currentView === 'month') {
         // Bereken maandnummer
         const monthNumber = today.getMonth();
-        const left = monthNumber * columnWidth;
+        const left = monthNumber * columnWidth + (columnWidth / 2);
         indicator.style.left = left + 'px';
     }
 }
