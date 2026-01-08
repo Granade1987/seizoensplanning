@@ -16,8 +16,8 @@ let activeFilters = ['Logistiek', 'Webshop', 'MJFM', 'Outlet', 'Marketing', 'Win
 let currentView = 'week';
 
 const departments = {
-    'Logistiek': '#f59e0b', 'Webshop': '#3b82f6', 'MJFM': '#8b5cf6',
-    'Outlet': '#ec4899', 'Marketing': '#10b981', 'Winkels': '#6366f1'
+    'Logistiek': '#767676ff', 'Webshop': '#0062ffff', 'MJFM': '#9a6fffff',
+    'Outlet': '#fffb00ff', 'Marketing': '#10b981', 'Winkels': '#11c5c5ff'
 };
 
 const monthStructure = [
@@ -38,8 +38,8 @@ document.addEventListener('DOMContentLoaded', () => {
 function switchView(view, btn) {
     currentView = view;
     document.querySelectorAll('.btn-view').forEach(b => b.classList.remove('active'));
-    if(btn) btn.classList.add('active');
-    
+    if (btn) btn.classList.add('active');
+
     const root = document.documentElement;
     const grid = document.getElementById('timelineGrid');
     if (view === 'day') {
@@ -111,7 +111,7 @@ function updateTodayIndicator() {
     const today = new Date();
     const indicator = document.getElementById('todayIndicator');
     const columnWidth = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--column-width'));
-    
+
     if (currentView === 'day') {
         // Bereken dag van het jaar (1-365)
         const startOfYear = new Date(today.getFullYear(), 0, 1);
@@ -137,7 +137,7 @@ function updateTodayIndicator() {
 function renderCampaigns() {
     const grid = document.getElementById('timelineGrid');
     grid.innerHTML = '';
-    
+
     // Voeg weekend kolommen toe alleen als dagniveau (beperkte hoogte)
     if (currentView === 'day') {
         for (let i = 1; i <= 365; i++) {
@@ -145,7 +145,7 @@ function renderCampaigns() {
             if (date.getDay() === 0 || date.getDay() === 6) {
                 const col = document.createElement('div');
                 col.className = 'weekend-col';
-                col.style.left = `${(i-1) * 35}px`;
+                col.style.left = `${(i - 1) * 35}px`;
                 grid.appendChild(col);
             }
         }
@@ -153,7 +153,7 @@ function renderCampaigns() {
 
     const filtered = campaigns.filter(c => activeFilters.includes(c.department));
     const rows = [];
-    
+
     filtered.forEach(item => {
         if (!item.startDate || !item.endDate) return; // Skip oude data zonder datums
         let start, end;
@@ -171,8 +171,8 @@ function renderCampaigns() {
         }
 
         let rowIndex = rows.findIndex(row => row.every(p => end < p.start || start > p.end));
-        if (rowIndex === -1) { rows.push([{start, end}]); rowIndex = rows.length - 1; } 
-        else { rows[rowIndex].push({start, end}); }
+        if (rowIndex === -1) { rows.push([{ start, end }]); rowIndex = rows.length - 1; }
+        else { rows[rowIndex].push({ start, end }); }
 
         const bar = document.createElement('div');
         bar.className = 'task-bar';
@@ -227,7 +227,7 @@ function saveTask() {
         endDate: endDate,
         color: departments[document.getElementById('department').value]
     };
-    if(!data.title) return alert("Vul titel in.");
+    if (!data.title) return alert("Vul titel in.");
     database.ref('campaigns_2026/' + id).update(data).then(() => {
         alert("Opgeslagen!");
         closeModal();
@@ -239,8 +239,8 @@ function saveTask() {
 function addComment() {
     const id = document.getElementById('currentId').value;
     const text = document.getElementById('newComment').value;
-    if(!id || !text) return;
-    const comment = { text, date: new Date().toLocaleDateString('nl-NL', {day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit'}) };
+    if (!id || !text) return;
+    const comment = { text, date: new Date().toLocaleDateString('nl-NL', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) };
     database.ref(`campaigns_2026/${id}/comments`).push(comment).then(() => {
         document.getElementById('newComment').value = '';
         refreshCommentsOnly(id);
@@ -251,7 +251,7 @@ function refreshCommentsOnly(itemId) {
     const item = campaigns.find(c => c.id == itemId);
     const list = document.getElementById('commentsList');
     list.innerHTML = '';
-    if(item && item.comments) {
+    if (item && item.comments) {
         Object.keys(item.comments).forEach(key => {
             const c = item.comments[key];
             list.innerHTML += `<div style="font-size:12px; margin-bottom:5px; border-bottom:1px solid #eee; display:flex; justify-content:space-between;"><span>${c.date}: ${c.text}</span><span style="cursor:pointer; color:red" onclick="deleteComment('${key}')">&times;</span></div>`;
@@ -266,12 +266,12 @@ function deleteComment(key) {
 
 function deleteItem() {
     const id = document.getElementById('currentId').value;
-    if(confirm("Verwijderen?")) database.ref('campaigns_2026/' + id).remove().then(() => closeModal());
+    if (confirm("Verwijderen?")) database.ref('campaigns_2026/' + id).remove().then(() => closeModal());
 }
 
 function openAttachment() {
     const url = document.getElementById('attachmentUrl').value;
-    if(url) window.open(url, '_blank');
+    if (url) window.open(url, '_blank');
 }
 
 function resetModal() {
@@ -304,16 +304,16 @@ function getWeekNumber(date) {
     // Kopieer de datum om de originele niet te wijzigen
     const target = new Date(date.valueOf());
     const dayNr = (date.getDay() + 6) % 7; // Maandag = 0
-    
+
     // Zet naar dichtstbijzijnde donderdag (huidige datum + 3 - dayNr)
     target.setDate(target.getDate() - dayNr + 3);
-    
+
     // 1 januari van het jaar
     const jan4 = new Date(target.getFullYear(), 0, 4);
-    
+
     // Bereken aantal weken tussen de donderdag en 4 januari
     const weekDiff = Math.round((target - jan4) / 86400000 / 7);
-    
+
     // Week 1 is de week met 4 januari
     return 1 + weekDiff;
 }
@@ -326,4 +326,4 @@ function getDateFromWeek(week, year) {
     return d;
 }
 
-window.onclick = (e) => { if(e.target.className === 'modal') closeModal(); };
+window.onclick = (e) => { if (e.target.className === 'modal') closeModal(); };
