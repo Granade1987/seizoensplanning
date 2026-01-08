@@ -3,8 +3,11 @@
     --success: #10b981;
     --danger: #ef4444;
     --bg-main: #f9fafb;
-    --text-color: #0f172a;
-    --card-bg: #ffffff;
+    --text-color: #0f172a; /* Added for dark mode */
+    --muted: #374151; /* Added for dark mode */
+    --input-bg: #ffffff; /* Added for dark mode */
+    --input-border: #d1d5db; /* Added for dark mode */
+    --card-bg: #ffffff; /* Added for dark mode */
     --border-color: #e5e7eb;
     --column-width: 60px;
     --total-cols: 53;
@@ -97,7 +100,7 @@ header {
     gap: 15px;
     margin-bottom: 20px;
     flex-wrap: wrap;
-    background: white;
+    background: var(--card-bg); /* Updated to use CSS variable */
     padding: 15px;
     border-radius: 12px;
     border: 1px solid var(--border-color);
@@ -137,7 +140,7 @@ header {
     position: sticky;
     top: 0;
     z-index: 100;
-    background: white;
+    background: var(--card-bg); /* Updated to use CSS variable */
     width: max-content;
     border-bottom: 1px solid var(--border-color);
 }
@@ -172,19 +175,19 @@ header {
     font-weight: 800;
     text-transform: uppercase;
     color: var(--primary);
-    background: #f8fafc;
+    background: var(--card-bg); /* Updated to use CSS variable */
     border-bottom: 1px solid var(--border-color);
 }
 
 .week-num {
     font-size: 10px;
     font-weight: 700;
-    color: #6b7280;
+    color: var(--muted); /* Updated to use CSS variable */
     background: #f3f4f6;
 }
 
 .week-num.weekend {
-    background-color: #e2e8f0;
+    background-color: rgba(226, 232, 240, 0.6); /* Updated for dark mode */
     color: #64748b;
 }
 
@@ -240,7 +243,7 @@ header {
 }
 
 .modal-content {
-    background: white;
+    background: var(--card-bg);
     padding: 30px;
     border-radius: 15px;
     width: 500px;
@@ -273,7 +276,7 @@ header {
 .form-group label {
     display: block;
     font-weight: 600;
-    color: #374151;
+    color: var(--muted);
     margin-bottom: 5px;
 }
 
@@ -282,13 +285,14 @@ header {
 .modal-content textarea {
     width: 100%;
     padding: 12px;
-    border: 1px solid #d1d5db;
+    border: 1px solid var(--input-border);
+    background: var(--input-bg);
     border-radius: 8px;
     margin-top: 5px;
     box-sizing: border-box;
     font-family: inherit;
     font-size: 14px;
-    transition: border-color 0.2s;
+    transition: border-color 0.2s, background-color 0.2s;
 }
 
 .modal-content input:focus,
@@ -363,6 +367,9 @@ body.dark {
     --card-bg: #081124;
     --border-color: #122033;
     --primary: #7c5cff;
+    --muted: #9fb6d9;
+    --input-bg: #071226;
+    --input-border: #123046;
 }
 
 body.dark .timeline-wrapper,
