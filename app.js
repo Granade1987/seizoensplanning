@@ -104,6 +104,34 @@ function buildHeaders() {
             }
         });
     }
+    updateTodayIndicator();
+}
+
+function updateTodayIndicator() {
+    const today = new Date();
+    const indicator = document.getElementById('todayIndicator');
+    const columnWidth = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--column-width'));
+    
+    if (currentView === 'day') {
+        // Bereken dag van het jaar (1-365)
+        const startOfYear = new Date(today.getFullYear(), 0, 1);
+        const dayOfYear = Math.floor((today - startOfYear) / (24 * 60 * 60 * 1000)) + 1;
+        const left = (dayOfYear - 1) * columnWidth;
+        indicator.style.left = left + 'px';
+    } else if (currentView === 'week') {
+        // Bereken weeknummer
+        const startOfYear = new Date(today.getFullYear(), 0, 1);
+        const diff = today - startOfYear;
+        const dayOfYear = Math.floor(diff / (24 * 60 * 60 * 1000));
+        const weekNumber = Math.ceil((dayOfYear + startOfYear.getDay() + 1) / 7);
+        const left = (weekNumber - 1) * columnWidth;
+        indicator.style.left = left + 'px';
+    } else if (currentView === 'month') {
+        // Bereken maandnummer
+        const monthNumber = today.getMonth();
+        const left = monthNumber * columnWidth;
+        indicator.style.left = left + 'px';
+    }
 }
 
 function renderCampaigns() {

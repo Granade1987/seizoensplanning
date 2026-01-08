@@ -31,6 +31,8 @@ header { display: flex; justify-content: space-between; align-items: flex-start;
 .timeline-wrapper { background: white; border-radius: 12px; overflow-x: auto; border: 1px solid var(--border-color); position: relative; }
 .timeline-header { position: sticky; top: 0; z-index: 100; background: white; width: max-content; border-bottom: 1px solid var(--border-color); }
 
+.today-indicator { position: absolute; top: 0; bottom: 0; width: 1px; background-color: #ef4444; z-index: 50; pointer-events: none; }
+
 .timeline-months, .timeline-weeks, .timeline-grid { 
     display: grid; 
     grid-template-columns: repeat(var(--total-cols), var(--column-width)); 
