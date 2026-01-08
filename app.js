@@ -30,10 +30,44 @@ const monthStructure = [
 ];
 
 document.addEventListener('DOMContentLoaded', () => {
+    initTheme();
     switchView('day', document.querySelector('.btn-view[onclick*="day"]'));
     createLegend();
     listenToFirebase();
 });
+
+function initTheme() {
+    const saved = localStorage.getItem('theme');
+    if (saved === 'dark') {
+        document.body.classList.add('dark');
+    } else if (saved === 'light') {
+        document.body.classList.remove('dark');
+    } else {
+        // respect system preference by default
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.body.classList.add('dark');
+        }
+    }
+    updateThemeButton();
+}
+
+function toggleDarkMode() {
+    const isDark = document.body.classList.toggle('dark');
+    localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    updateThemeButton();
+}
+
+function updateThemeButton() {
+    const btn = document.getElementById('themeToggle');
+    if (!btn) return;
+    if (document.body.classList.contains('dark')) {
+        btn.textContent = '☀️';
+        btn.title = 'Schakel naar licht thema';
+    } else {
+        btn.textContent = '🌙';
+        btn.title = 'Schakel naar donker thema';
+    }
+}
 
 function switchView(view, btn) {
     currentView = view;
