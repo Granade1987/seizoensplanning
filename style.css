@@ -112,6 +112,8 @@ header {
     right: 0;
     top: 40px;
     min-width: 260px;
+    max-height: 400px;
+    overflow-y: auto;
     background: var(--card-bg);
     border: 1px solid var(--border-color);
     border-radius: 10px;
