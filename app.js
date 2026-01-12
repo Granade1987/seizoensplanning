@@ -608,6 +608,44 @@ function hideLoginPrompt() {
     const loginDiv = document.getElementById('authPrompt');
     if (loginDiv) loginDiv.style.display = 'none';
     document.querySelector('.container').style.display = 'block';
+    updateUserMenu();
+}
+
+function updateUserMenu() {
+    if (auth.currentUser && auth.currentUser.email) {
+        const userMenu = document.getElementById('userMenu');
+        if (userMenu) userMenu.style.display = 'flex';
+    }
+}
+
+function toggleUserMenu() {
+    const userPanel = document.getElementById('userPanel');
+    if (!userPanel.innerHTML) {
+        const user = auth.currentUser;
+        userPanel.innerHTML = `
+            <div style="padding: 12px;">
+                <p style="margin: 0 0 12px 0; font-size: 14px;"><strong>${user.email}</strong></p>
+                <button onclick="signOut()" style="
+                    background: #ef4444;
+                    color: white;
+                    border: none;
+                    padding: 8px 16px;
+                    border-radius: 6px;
+                    font-size: 14px;
+                    cursor: pointer;
+                    width: 100%;
+                ">Uitloggen</button>
+            </div>
+        `;
+    }
+    userPanel.style.display = userPanel.style.display === 'none' ? 'block' : 'none';
+}
+
+function signOut() {
+    auth.signOut().then(() => {
+        document.getElementById('userPanel').style.display = 'none';
+        document.getElementById('userMenu').style.display = 'none';
+    });
 }
 
 function showUnauthorizedMessage(email) {

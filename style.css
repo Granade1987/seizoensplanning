@@ -156,6 +156,20 @@ body.dark .notif-item:hover { background: rgba(255,255,255,0.02); }
 body.dark .notif-panel { background: var(--card-bg); border-color: rgba(255,255,255,0.06); }
 body.dark .notif-item { color: var(--text-color); }
 
+.user-panel {
+    position: absolute;
+    right: 0;
+    top: 40px;
+    min-width: 220px;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    box-shadow: 0 6px 18px rgba(2,6,23,0.4);
+    z-index: 9999;
+}
+
+body.dark .user-panel { background: var(--card-bg); border-color: rgba(255,255,255,0.06); }
+
 /* Legend */
 .legend {
     display: flex;
