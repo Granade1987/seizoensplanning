@@ -333,7 +333,18 @@ function openModal(id = null) {
         document.getElementById('deleteBtn').style.display = 'block';
         // override delete button to use notification-aware delete
         document.getElementById('deleteBtn').onclick = deleteItemWithNotification;
+        // Show creator info
+        const creatorInfo = document.getElementById('creatorInfo');
+        if (item.creator && item.createdAt) {
+            const date = new Date(item.createdAt).toLocaleDateString('nl-NL');
+            creatorInfo.textContent = `Gemaakt door ${item.creator} op ${date}`;
+        } else {
+            creatorInfo.textContent = '';
+        }
         refreshCommentsOnly(id);
+    } else {
+        // New item: hide creator info
+        document.getElementById('creatorInfo').textContent = '';
     }
 }
 
@@ -353,7 +364,12 @@ function saveTask() {
         endDate: endDate,
         color: departments[document.getElementById('department').value]
     };
-    if (isNew) data.unread = true;
+    // Add creator info on new items
+    if (isNew) {
+        data.unread = true;
+        data.creator = auth.currentUser.email;
+        data.createdAt = Date.now();
+    }
     if (!data.title) return alert("Vul titel in.");
     database.ref('campaigns_2026/' + id).update(data).then(() => {
         // push notification about creation or update
