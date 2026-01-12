@@ -12,12 +12,14 @@ firebase.initializeApp(firebaseConfig);
 const database = firebase.database();
 
 let campaigns = [];
-let activeFilters = ['Logistiek', 'Webshop', 'MJFM', 'Outlet', 'Marketing', 'Winkels'];
+let activeFilters = ['Logistiek', 'Webshop', 'MJFM', 'Outlet', 'Marketing', 'Winkels', 'Content', 'Feestdagen'];
 let currentView = 'week';
 
 const departments = {
     'Logistiek': '#767676ff', 'Webshop': '#0062ffff', 'MJFM': '#9a6fffff',
-    'Outlet': '#fffb00ff', 'Marketing': '#10b981', 'Winkels': '#11c5c5ff'
+    'Outlet': '#fffb00ff', 'Marketing': '#10b981', 'Winkels': '#11c5c5ff',
+    'Content': '#fb923cff', /* Oranje */
+    'Feestdagen': '#ef4444' /* Rood */
 };
 
 const monthStructure = [
