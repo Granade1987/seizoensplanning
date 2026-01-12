@@ -315,6 +315,13 @@ body.dark .js-tooltip {
     color: var(--text-color);
 }
 
+/* Disable CSS pseudo-tooltips because we use a JS tooltip appended to body.
+   Keep these overrides at the end so they win if earlier rules exist. */
+.task-bar[data-title]::after,
+.task-bar[data-title]::before {
+    display: none !important;
+}
+
 /* Modal Knoppen & Layout */
 .modal {
     display: none;
