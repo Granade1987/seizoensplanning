@@ -295,6 +295,26 @@ body.dark .task-bar[data-title]::after {
     color: var(--text-color);
 }
 
+/* JS tooltip (appended to body) */
+.js-tooltip {
+    position: fixed;
+    transform: translateX(-50%);
+    pointer-events: none;
+    background: rgba(0,0,0,0.85);
+    color: #fff;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    z-index: 99999;
+    white-space: nowrap;
+    box-shadow: 0 6px 18px rgba(2,6,23,0.6);
+    display: none;
+}
+body.dark .js-tooltip {
+    background: rgba(10,14,22,0.95);
+    color: var(--text-color);
+}
+
 /* Modal Knoppen & Layout */
 .modal {
     display: none;

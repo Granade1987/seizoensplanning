@@ -211,16 +211,59 @@ function renderCampaigns() {
         const bar = document.createElement('div');
         bar.className = 'task-bar';
         bar.innerHTML = `<span>${item.title}</span> ${item.attachmentUrl ? '🔗' : ''}`;
-        // Tooltip: volledige titel beschikbaar op hover (gebruik data-title voor custom tooltip,
-        // en aria-label voor toegankelijkheid; vermijd native `title` vanwege vertraagde browser tooltip)
+        // Tooltip data + accessibility
         bar.setAttribute('data-title', item.title);
         bar.setAttribute('aria-label', item.title);
+
+        // JS tooltip handlers (append tooltip to body so it's not clipped by containers)
+        bar.addEventListener('mouseenter', (ev) => showTooltip(ev.currentTarget, item.title));
+        bar.addEventListener('mousemove', (ev) => moveTooltip(ev));
+        bar.addEventListener('mouseleave', hideTooltip);
+        bar.addEventListener('focus', (ev) => showTooltip(ev.currentTarget, item.title));
+        bar.addEventListener('blur', hideTooltip);
         bar.style.backgroundColor = item.color;
         bar.style.gridColumn = `${start} / span ${(end - start) + 1}`;
         bar.style.gridRow = rowIndex + 1;
         bar.onclick = () => openModal(item.id);
         grid.appendChild(bar);
     });
+}
+
+// --- Tooltip implementation ---
+let __tooltipEl = null;
+function showTooltip(target, text) {
+    if (!text) return;
+    if (!__tooltipEl) {
+        __tooltipEl = document.createElement('div');
+        __tooltipEl.className = 'js-tooltip';
+        document.body.appendChild(__tooltipEl);
+    }
+    __tooltipEl.textContent = text;
+    __tooltipEl.style.display = 'block';
+    positionTooltipForTarget(target);
+}
+
+function moveTooltip(ev) {
+    if (!__tooltipEl) return;
+    // Slight offset from cursor
+    const x = ev.clientX + 12;
+    const y = ev.clientY - 28;
+    __tooltipEl.style.left = x + 'px';
+    __tooltipEl.style.top = y + 'px';
+}
+
+function positionTooltipForTarget(target) {
+    if (!__tooltipEl || !target) return;
+    const rect = target.getBoundingClientRect();
+    const x = rect.left + rect.width / 2;
+    const y = rect.top - 10;
+    __tooltipEl.style.left = x + 'px';
+    __tooltipEl.style.top = (y - __tooltipEl.offsetHeight) + 'px';
+}
+
+function hideTooltip() {
+    if (!__tooltipEl) return;
+    __tooltipEl.style.display = 'none';
 }
 
 function listenToFirebase() {
