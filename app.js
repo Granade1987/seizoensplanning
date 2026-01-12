@@ -39,7 +39,6 @@ document.addEventListener('DOMContentLoaded', () => {
     listenToFirebase();
     listenToNotifications();
 });
-});
 
 function initTheme() {
     const saved = localStorage.getItem('theme');
