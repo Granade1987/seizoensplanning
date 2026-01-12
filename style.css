@@ -129,6 +129,32 @@ header {
 .notif-item { cursor: pointer; }
 .notif-item:hover { background: rgba(0,0,0,0.03); }
 body.dark .notif-item:hover { background: rgba(255,255,255,0.02); }
+
+/* Toast messages for realtime updates */
+#toastContainer {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    z-index: 999999;
+}
+.toast {
+    background: rgba(0,0,0,0.8);
+    color: white;
+    padding: 10px 14px;
+    border-radius: 8px;
+    box-shadow: 0 6px 18px rgba(2,6,23,0.6);
+    min-width: 220px;
+    max-width: 360px;
+    font-weight: 600;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity 180ms ease, transform 180ms ease;
+}
+.toast.show { opacity: 1; transform: translateY(0); }
+body.dark .toast { background: rgba(10,14,22,0.95); color: var(--text-color); }
 .notif-item + .notif-item { border-top: 1px solid rgba(0,0,0,0.06); }
 .notif-checkbox {
     width: 22px;
