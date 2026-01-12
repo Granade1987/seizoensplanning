@@ -10,11 +10,16 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 const database = firebase.database();
+const auth = firebase.auth();
 
 let campaigns = [];
 let notifications = [];
 let activeFilters = ['Logistiek', 'Webshop', 'MJFM', 'Outlet', 'Marketing', 'Winkels', 'Content', 'Feestdagen'];
 let currentView = 'week';
+let isAuthInitialized = false;
+
+// Company domain for authorization
+const ALLOWED_DOMAIN = '@mikesjustformen.nl';
 
 const departments = {
     'Logistiek': '#767676ff', 'Webshop': '#0062ffff', 'MJFM': '#9a6fffff',
@@ -34,11 +39,31 @@ const monthStructure = [
 
 document.addEventListener('DOMContentLoaded', () => {
     initTheme();
-    switchView('day', document.querySelector('.btn-view[onclick*="day"]'));
-    createLegend();
-    listenToFirebase();
-    listenToNotifications();
+    // Initialize authentication before UI
+    initAuth();
 });
+
+function initAuth() {
+    // Listen to auth state changes
+    auth.onAuthStateChanged(user => {
+        if (!user) {
+            // Not signed in: show login prompt
+            showLoginPrompt();
+        } else if (!user.email || !user.email.endsWith(ALLOWED_DOMAIN)) {
+            // Signed in but wrong domain
+            showUnauthorizedMessage(user.email);
+            auth.signOut();
+        } else {
+            // Authorized: show app and init UI
+            hideLoginPrompt();
+            isAuthInitialized = true;
+            switchView('day', document.querySelector('.btn-view[onclick*="day"]'));
+            createLegend();
+            listenToFirebase();
+            listenToNotifications();
+        }
+    });
+}
 
 function initTheme() {
     const saved = localStorage.getItem('theme');
@@ -536,3 +561,73 @@ function getDateFromWeek(week, year) {
 }
 
 window.onclick = (e) => { if (e.target.className === 'modal') closeModal(); };
+
+/* === Authentication UI Helpers === */
+function showLoginPrompt() {
+    // Hide main UI and show login screen
+    document.querySelector('.container').style.display = 'none';
+    let loginDiv = document.getElementById('authPrompt');
+    if (!loginDiv) {
+        loginDiv = document.createElement('div');
+        loginDiv.id = 'authPrompt';
+        loginDiv.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0,0,0,0.5);
+            z-index: 10000;
+        `;
+        loginDiv.innerHTML = `
+            <div style="background: white; padding: 40px; border-radius: 12px; text-align: center; max-width: 400px;">
+                <h2>Welkom bij Jaarplanning 2026</h2>
+                <p style="color: #666;">Log in met uw Google-account (@mikesjustformen.nl)</p>
+                <button id="signInBtn" style="
+                    background: #4285f4;
+                    color: white;
+                    border: none;
+                    padding: 12px 24px;
+                    border-radius: 8px;
+                    font-size: 16px;
+                    cursor: pointer;
+                ">Inloggen met Google</button>
+                <p id="authError" style="color: red; margin-top: 12px; display: none;"></p>
+            </div>
+        `;
+        document.body.appendChild(loginDiv);
+        document.getElementById('signInBtn').onclick = signInWithGoogle;
+    }
+    loginDiv.style.display = 'flex';
+}
+
+function hideLoginPrompt() {
+    const loginDiv = document.getElementById('authPrompt');
+    if (loginDiv) loginDiv.style.display = 'none';
+    document.querySelector('.container').style.display = 'block';
+}
+
+function showUnauthorizedMessage(email) {
+    const msg = `Uw account (${email}) is niet geautoriseerd. Alleen accounts met ${ALLOWED_DOMAIN} hebben toegang.`;
+    alert(msg);
+    console.error(msg);
+}
+
+function signInWithGoogle() {
+    const provider = new firebase.auth.GoogleAuthProvider();
+    auth.signInWithPopup(provider)
+        .then(result => {
+            // onAuthStateChanged will handle the rest
+        })
+        .catch(err => {
+            const errDiv = document.getElementById('authError');
+            if (errDiv) {
+                errDiv.textContent = 'Inloggen mislukt: ' + err.message;
+                errDiv.style.display = 'block';
+            }
+            console.error('Sign-in error:', err);
+        });
+}
