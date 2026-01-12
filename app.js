@@ -38,53 +38,8 @@ document.addEventListener('DOMContentLoaded', () => {
     createLegend();
     listenToFirebase();
     listenToNotifications();
-    setupRealtimeToasts();
 });
-
-function setupRealtimeToasts() {
-    // Show quick toasts for other users' changes. We keep the 'value' listener
-    // for full re-rendering; child listeners are only for user-facing toasts.
-    const ref = database.ref('campaigns_2026');
-    ref.on('child_added', snap => {
-        const item = snap.val();
-        if (!item) return;
-        showToast(`Nieuw: ${item.title}`);
-    });
-    ref.on('child_changed', snap => {
-        const item = snap.val();
-        if (!item) return;
-        showToast(`Bijgewerkt: ${item.title}`);
-    });
-    ref.on('child_removed', snap => {
-        const item = snap.val();
-        // when removed, snap.val() may be null; try to get key
-        const key = snap.key;
-        showToast(`Verwijderd item`);
-    });
-
-    // Also show toasts when a new notification is pushed
-    const nref = database.ref('notifications');
-    nref.on('child_added', snap => {
-        const n = snap.val();
-        if (!n) return;
-        showToast(`${n.type}: ${n.title}`);
-    });
-}
-
-function showToast(text, timeout = 3500) {
-    const container = document.getElementById('toastContainer');
-    if (!container) return;
-    const el = document.createElement('div');
-    el.className = 'toast';
-    el.textContent = text;
-    container.appendChild(el);
-    // allow CSS transition
-    requestAnimationFrame(() => el.classList.add('show'));
-    setTimeout(() => {
-        el.classList.remove('show');
-        setTimeout(() => el.remove(), 220);
-    }, timeout);
-}
+});
 
 function initTheme() {
     const saved = localStorage.getItem('theme');
