@@ -368,8 +368,11 @@ function updateNotificationsUI() {
     let html = '';
     notifications.slice(0, 20).forEach(n => {
         const time = n.date ? new Date(n.date).toLocaleString('nl-NL') : '';
+        // use more standard checkbox symbols: ☐ (unread) and ☑ (read)
+        const symbol = n.read ? '☑' : '☐';
+        const cls = n.read ? 'read' : 'unread';
         html += `<div class="notif-item" data-id="${n.id}">` +
-                `<div class="notif-checkbox" onclick="markNotificationRead('${n.id}', event)">${n.read ? '✓' : 'V'}</div>` +
+                `<div class="notif-checkbox ${cls}" onclick="markNotificationRead('${n.id}', event)">${symbol}</div>` +
                 `<div style="flex:1;"><div class="notif-title">${n.title}</div><div style="font-size:11px;color:var(--muted)">${n.type} · ${time}</div></div>` +
                 `</div>`;
     });

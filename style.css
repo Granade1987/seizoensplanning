@@ -138,6 +138,15 @@ header {
     cursor: pointer;
     font-weight: 800;
 }
+.notif-checkbox.read {
+    background: #10b981;
+    color: white;
+}
+.notif-checkbox.unread {
+    background: rgba(0,0,0,0.06);
+    color: var(--muted);
+}
+.notif-checkbox:hover { transform: translateY(-1px); }
 .notif-title { font-size: 13px; font-weight:700; }
 .notif-empty { padding: 12px; text-align:center; color:var(--muted); }
 
