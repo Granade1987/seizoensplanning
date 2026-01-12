@@ -21,6 +21,10 @@
                     <button class="btn-view" onclick="switchView('week', this)">Week</button>
                     <button class="btn-view" onclick="switchView('month', this)">Maand</button>
                 </div>
+                <div style="position:relative;">
+                    <button id="notifBtn" class="btn-toggle" onclick="toggleNotifPanel()" aria-expanded="false" aria-haspopup="true">🔔<span id="notifDot" class="notif-dot" aria-hidden="true"></span></button>
+                    <div id="notifPanel" class="notif-panel" role="dialog" aria-label="Notificaties" style="display:none;"></div>
+                </div>
                 <button id="themeToggle" class="btn-toggle" onclick="toggleDarkMode()">🌙</button>
             </div>
         </header>

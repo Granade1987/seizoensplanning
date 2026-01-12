@@ -272,6 +272,7 @@ function listenToFirebase() {
     database.ref('campaigns_2026').on('value', (s) => {
         campaigns = s.val() ? Object.values(s.val()) : [];
         renderCampaigns();
+        updateNotificationsUI();
     });
 }
 
@@ -297,7 +298,9 @@ function openModal(id = null) {
 }
 
 function saveTask() {
-    const id = document.getElementById('currentId').value || Date.now().toString();
+    const currentIdVal = document.getElementById('currentId').value;
+    const isNew = !currentIdVal;
+    const id = currentIdVal || Date.now().toString();
     const startDate = document.getElementById('startDate').value;
     const endDate = document.getElementById('endDate').value;
     if (!startDate || !endDate) return alert("Vul start en eind datum in.");
@@ -310,6 +313,7 @@ function saveTask() {
         endDate: endDate,
         color: departments[document.getElementById('department').value]
     };
+    if (isNew) data.unread = true;
     if (!data.title) return alert("Vul titel in.");
     database.ref('campaigns_2026/' + id).update(data).then(() => {
         alert("Opgeslagen!");
@@ -317,6 +321,47 @@ function saveTask() {
     }).catch(err => {
         alert("Fout bij opslaan: " + err.message);
     });
+}
+
+/* Notifications panel and helpers */
+function updateNotificationsUI() {
+    const panel = document.getElementById('notifPanel');
+    const dot = document.getElementById('notifDot');
+    if (!panel || !dot) return;
+    // find unread items
+    const unread = campaigns.filter(c => c.unread);
+    if (unread.length === 0) {
+        dot.style.display = 'none';
+        panel.innerHTML = '<div class="notif-empty">Geen nieuwe notificaties</div>';
+        return;
+    }
+    dot.style.display = 'inline-block';
+    let html = '';
+    unread.slice(0, 10).forEach(item => {
+        html += `<div class="notif-item" data-id="${item.id}">` +
+                `<div class="notif-checkbox" onclick="markNotificationRead('${item.id}', event)">V</div>` +
+                `<div class="notif-title">${item.title}</div>` +
+                `</div>`;
+    });
+    panel.innerHTML = html;
+}
+
+function toggleNotifPanel() {
+    const panel = document.getElementById('notifPanel');
+    const btn = document.getElementById('notifBtn');
+    if (!panel || !btn) return;
+    const isOpen = panel.style.display === 'block';
+    panel.style.display = isOpen ? 'none' : 'block';
+    btn.setAttribute('aria-expanded', (!isOpen).toString());
+}
+
+function markNotificationRead(id, ev) {
+    // prevent click bubbling that might open modal
+    ev && ev.stopPropagation && ev.stopPropagation();
+    if (!id) return;
+    database.ref('campaigns_2026/' + id).update({ unread: false }).then(() => {
+        // UI will update via Firebase listener which calls updateNotificationsUI
+    }).catch(err => console.error('Failed to mark read', err));
 }
 
 function addComment() {
