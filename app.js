@@ -369,6 +369,10 @@ function saveTask() {
         data.unread = true;
         data.creator = auth.currentUser.email;
         data.createdAt = Date.now();
+    } else {
+        // Add editor info on updates
+        data.lastEditor = auth.currentUser.email;
+        data.lastEditedAt = Date.now();
     }
     if (!data.title) return alert("Vul titel in.");
     database.ref('campaigns_2026/' + id).update(data).then(() => {
@@ -379,7 +383,8 @@ function saveTask() {
             title: data.title,
             department: data.department,
             date: Date.now(),
-            read: false
+            read: false,
+            editor: auth.currentUser.email
         });
         alert("Opgeslagen!");
         closeModal();
@@ -412,10 +417,15 @@ function updateNotificationsUI() {
         // use more standard checkbox symbols: ☐ (unread) and ☑ (read)
         const symbol = n.read ? '☑' : '☐';
         const cls = n.read ? 'read' : 'unread';
+        // Format editor/creator info
+        let userInfo = '';
+        if (n.editor) {
+            userInfo = ` · Bewerkt door ${n.editor}`;
+        }
         // make the whole item clickable to open the related campaign (if it exists)
         html += `<div class="notif-item" data-id="${n.id}" onclick="openNotificationTarget('${n.id}','${n.itemId || ''}')">` +
                 `<div class="notif-checkbox ${cls}" onclick="markNotificationRead('${n.id}', event)">${symbol}</div>` +
-                `<div style="flex:1;"><div class="notif-title">${n.title}</div><div style="font-size:11px;color:var(--muted)">${n.type} · ${time}</div></div>` +
+                `<div style="flex:1;"><div class="notif-title">${n.title}</div><div style="font-size:11px;color:var(--muted)">${n.type}${userInfo} · ${time}</div></div>` +
                 `</div>`;
     });
     panel.innerHTML = html;
