@@ -231,6 +231,46 @@ header {
     border: 1px solid black;
 }
 
+/* Custom tooltip for task items (shows full title on hover) */
+.task-bar[data-title] {
+    position: relative;
+}
+.task-bar[data-title]:hover::after {
+    content: attr(data-title);
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: calc(100% + 8px);
+    white-space: nowrap;
+    background: rgba(0,0,0,0.85);
+    color: #fff;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    box-shadow: 0 6px 18px rgba(2,6,23,0.6);
+    z-index: 50;
+    max-width: 60vw;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.task-bar[data-title]:hover::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: calc(100% + 2px);
+    border-width: 6px 6px 0 6px;
+    border-style: solid;
+    border-color: rgba(0,0,0,0.85) transparent transparent transparent;
+    z-index: 51;
+}
+
+/* Dark-mode adjustment for tooltip */
+body.dark .task-bar[data-title]:hover::after {
+    background: rgba(10,14,22,0.95);
+    color: var(--text-color);
+}
+
 /* Modal Knoppen & Layout */
 .modal {
     display: none;

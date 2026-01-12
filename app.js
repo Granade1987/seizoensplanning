@@ -211,6 +211,9 @@ function renderCampaigns() {
         const bar = document.createElement('div');
         bar.className = 'task-bar';
         bar.innerHTML = `<span>${item.title}</span> ${item.attachmentUrl ? '🔗' : ''}`;
+        // Tooltip: volledige titel beschikbaar op hover
+        bar.setAttribute('title', item.title);
+        bar.setAttribute('data-title', item.title);
         bar.style.backgroundColor = item.color;
         bar.style.gridColumn = `${start} / span ${(end - start) + 1}`;
         bar.style.gridRow = rowIndex + 1;
