@@ -371,7 +371,8 @@ function updateNotificationsUI() {
         // use more standard checkbox symbols: ☐ (unread) and ☑ (read)
         const symbol = n.read ? '☑' : '☐';
         const cls = n.read ? 'read' : 'unread';
-        html += `<div class="notif-item" data-id="${n.id}">` +
+        // make the whole item clickable to open the related campaign (if it exists)
+        html += `<div class="notif-item" data-id="${n.id}" onclick="openNotificationTarget('${n.id}','${n.itemId || ''}')">` +
                 `<div class="notif-checkbox ${cls}" onclick="markNotificationRead('${n.id}', event)">${symbol}</div>` +
                 `<div style="flex:1;"><div class="notif-title">${n.title}</div><div style="font-size:11px;color:var(--muted)">${n.type} · ${time}</div></div>` +
                 `</div>`;
@@ -402,6 +403,27 @@ function pushNotification(obj) {
     if (!obj) return;
     const n = Object.assign({ date: Date.now(), read: false }, obj);
     database.ref('notifications').push(n).catch(err => console.error('Failed to push notification', err));
+}
+
+function openNotificationTarget(notificationId, itemId) {
+    // If item exists, open modal for that item. Otherwise notify user it's deleted.
+    if (!notificationId) return;
+    if (!itemId) {
+        alert('Geen gekoppeld item gevonden.');
+        // mark notification read as it has no target
+        markNotificationRead(notificationId, null);
+        return;
+    }
+    const item = campaigns.find(c => c.id == itemId);
+    if (item) {
+        // open the item modal and mark notification read
+        openModal(itemId);
+        markNotificationRead(notificationId, null);
+    } else {
+        alert('Het item is verwijderd of bestaat niet meer.');
+        // mark as read to clear it from 'new' list
+        markNotificationRead(notificationId, null);
+    }
 }
 
 function addComment() {
