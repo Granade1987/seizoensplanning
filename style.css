@@ -361,15 +361,16 @@ header {
 }
 
 /* Dark mode overrides */
+/* Dark mode overrides */
 body.dark {
-    --bg-main: #0b1220;
+    --bg-main: #071225;
     --text-color: #e6eef8;
-    --card-bg: #081124;
-    --border-color: #122033;
-    --primary: #7c5cff;
-    --muted: #9fb6d9;
-    --input-bg: #071226;
-    --input-border: #123046;
+    --card-bg: #071428;
+    --border-color: rgba(255,255,255,0.06);
+    --primary: #8b6bff;
+    --muted: #b7cfe8;
+    --input-bg: #071225;
+    --input-border: rgba(255,255,255,0.08);
 }
 
 body.dark .timeline-wrapper,
@@ -378,8 +379,40 @@ body.dark .modal-content,
 body.dark .comments-display {
     background: var(--card-bg);
     border-color: var(--border-color);
+    color: var(--text-color);
 }
 
-body.dark .view-switcher { background: #0f2133; }
-body.dark .btn-view.active { background: #081a2a; box-shadow: none; }
-body.dark .btn-main { background: var(--primary); }
+body.dark .view-switcher { background: rgba(255,255,255,0.02); }
+body.dark .btn-view.active { background: rgba(255,255,255,0.03); box-shadow: none; color: var(--text-color); }
+body.dark .btn-main { background: var(--primary); color: white; }
+
+body.dark .week-num {
+    background: transparent;
+    color: var(--muted);
+}
+
+body.dark .week-num.weekend {
+    background-color: rgba(255,255,255,0.02);
+    color: var(--muted);
+}
+
+body.dark .timeline-grid {
+    background-image: linear-gradient(to right, rgba(255,255,255,0.04) 1px, transparent 1px);
+}
+
+body.dark .weekend-col {
+    background-color: rgba(255,255,255,0.03);
+}
+
+body.dark .modal-content input,
+body.dark .modal-content select,
+body.dark .modal-content textarea {
+    background: var(--input-bg);
+    border-color: var(--input-border);
+    color: var(--text-color);
+}
+
+body.dark .task-bar {
+    border: 1px solid rgba(255,255,255,0.06);
+    box-shadow: 0 6px 18px rgba(2,6,23,0.6);
+}
