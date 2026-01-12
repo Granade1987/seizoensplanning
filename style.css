@@ -416,3 +416,55 @@ body.dark .task-bar {
     border: 1px solid rgba(255,255,255,0.06);
     box-shadow: 0 6px 18px rgba(2,6,23,0.6);
 }
+
+/* Extra high-contrast tweaks for header/controls */
+body.dark header {
+    background: transparent;
+}
+
+body.dark .header-content h1 {
+    color: var(--text-color);
+    text-shadow: 0 1px 0 rgba(2,6,23,0.6);
+}
+
+body.dark .actions {
+    gap: 12px;
+}
+
+body.dark .view-switcher {
+    padding: 6px;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.03);
+}
+
+body.dark .btn-view {
+    color: var(--muted);
+    padding: 8px 14px;
+    border-radius: 10px;
+}
+
+body.dark .btn-view.active {
+    background: rgba(255,255,255,0.06);
+    color: var(--text-color);
+    box-shadow: 0 4px 12px rgba(2,6,23,0.5);
+}
+
+body.dark #themeToggle.btn-toggle,
+body.dark .btn-toggle {
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.09);
+    color: var(--text-color);
+    box-shadow: 0 2px 6px rgba(2,6,23,0.45);
+}
+
+/* Ensure legend and legend items are readable */
+body.dark .legend { color: var(--text-color); }
+body.dark .legend-item { color: var(--text-color); }
+
+/* Modal buttons contrast */
+body.dark .btn-cancel { background: rgba(255,255,255,0.03); color: var(--text-color); }
+body.dark .btn-icon-link { background: rgba(255,255,255,0.03); border-color: rgba(255,255,255,0.04); color: var(--text-color); }
+
+/* Small accessibility tweak: increase hit area for top-right controls */
+.actions .btn-toggle, .view-switcher .btn-view { min-height: 36px; }
