@@ -126,6 +126,9 @@ header {
     padding: 8px;
     border-radius: 8px;
 }
+.notif-item { cursor: pointer; }
+.notif-item:hover { background: rgba(0,0,0,0.03); }
+body.dark .notif-item:hover { background: rgba(255,255,255,0.02); }
 .notif-item + .notif-item { border-top: 1px solid rgba(0,0,0,0.06); }
 .notif-checkbox {
     width: 22px;
